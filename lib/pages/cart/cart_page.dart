@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../backup/models/data.dart';
-import '../../../backup/pages/cart/checkout_page.dart';
+import '../../../models/data.dart';
+import '../cart/checkout_page.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
