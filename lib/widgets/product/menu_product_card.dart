@@ -5,7 +5,7 @@ import '../../pages/menu/product_detail_page.dart';
 class MenuProductCard extends StatelessWidget {
   final Product product;
 
-  const MenuProductCard({Key? key, required this.product}) : super(key: key);
+  const MenuProductCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {

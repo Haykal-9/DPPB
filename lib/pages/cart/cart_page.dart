@@ -26,7 +26,7 @@ class CartPage extends StatelessWidget {
               children: [
                 ...mockCartItems
                     .map((item) => _buildCartItemCard(context, item))
-                    .toList(),
+                    ,
                 const SizedBox(height: 16),
                 _buildSubtotalSummary(),
                 const SizedBox(height: 16),
