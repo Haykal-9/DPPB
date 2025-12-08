@@ -184,7 +184,7 @@ class HomePage extends StatelessWidget {
                     color: category['isSelected'] ? Colors.brown : Colors.grey,
                   ),
                   label: Text(
-                    category['name'] as String,
+                    category['name'] as String, 
                     style: TextStyle(
                       color: category['isSelected']
                           ? Colors.brown
