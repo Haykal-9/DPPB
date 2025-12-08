@@ -35,15 +35,32 @@ class FavoritesPage extends StatelessWidget {
         padding: const EdgeInsets.all(12.0),
         child: Row(
           children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: Colors.brown.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Center(
-                child: Icon(Icons.coffee, size: 40, color: Colors.brown),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                favorite['image'],
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  print('Error loading image: ${favorite['image']}');
+                  print('Error: $error');
+                  return Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.brown.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.error_outline,
+                        size: 40,
+                        color: Colors.red,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(width: 12),

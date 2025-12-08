@@ -112,50 +112,65 @@ class HomePage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.brown.shade700,
         borderRadius: BorderRadius.circular(15),
-        image: const DecorationImage(
-          image: NetworkImage(
-            'https://images.unsplash.com/photo-1512568434223-2bebe552ea64',
-          ),
-          fit: BoxFit.cover,
-          opacity: 0.7,
-        ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Discover Our New Blend!',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Text(
-              'Experience the rich aroma and exquisite taste of our latest seasonal coffee. Limited time',
-              style: TextStyle(color: Colors.white70, fontSize: 12),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                // TODO: Navigate to Order Tracking
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: Image.asset(
+              'assets/images/kopi/CAPPUCINO.jpg',
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(color: Colors.brown.shade700);
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.brown,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text('Order Now'),
             ),
-          ],
-        ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(15),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Discover Our New Blend!',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Text(
+                  'Experience the rich aroma and exquisite taste of our latest seasonal coffee. Limited time',
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    // TODO: Navigate to Order Tracking
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.brown,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Order Now'),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -184,7 +199,7 @@ class HomePage extends StatelessWidget {
                     color: category['isSelected'] ? Colors.brown : Colors.grey,
                   ),
                   label: Text(
-                    category['name'] as String, 
+                    category['name'] as String,
                     style: TextStyle(
                       color: category['isSelected']
                           ? Colors.brown
