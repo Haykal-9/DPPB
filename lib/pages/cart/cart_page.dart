@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../models/data.dart';
-import '../cart/checkout_page.dart';
+import '../../models/data.dart';
+import './checkout_page.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
@@ -24,9 +24,9 @@ class CartPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
-                ...mockCartItems
-                    .map((item) => _buildCartItemCard(context, item))
-                    ,
+                ...mockCartItems.map(
+                  (item) => _buildCartItemCard(context, item),
+                ),
                 const SizedBox(height: 16),
                 _buildSubtotalSummary(),
                 const SizedBox(height: 16),

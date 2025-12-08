@@ -1,7 +1,6 @@
 // lib/pages/profile/order_history_page.dart
 import 'package:flutter/material.dart';
-import '../../data/data.dart'; 
-import '../order_tracking_page.dart'; // Import halaman tracking (satu level ke atas)
+import '../../data/history_data.dart';
 
 class OrderHistoryPage extends StatelessWidget {
   const OrderHistoryPage({super.key});
@@ -10,7 +9,10 @@ class OrderHistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Order History', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Order History',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16.0),
@@ -32,7 +34,10 @@ class OrderHistoryPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Order ${order['id']}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              'Order ${order['id']}',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             Text(order['date'], style: TextStyle(color: Colors.grey.shade600)),
             const Divider(),
             Text(order['items_summary']),
@@ -40,11 +45,18 @@ class OrderHistoryPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Total: ${order['total']}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  'Total: ${order['total']}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 TextButton(
                   onPressed: () {
                     // Navigasi ke halaman detail pesanan
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderTrackingPage()));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Detail pesanan ditampilkan'),
+                      ),
+                    );
                   },
                   child: const Text('View Details'),
                 ),

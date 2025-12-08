@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'order_history_page.dart';
+import 'reservation_history_page.dart';
+import 'edit_profile_page.dart';
+import 'vouchers_page.dart';
+import 'favorites_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -38,17 +43,17 @@ class ProfilePage extends StatelessWidget {
   Widget _buildProfileHeader() {
     return Row(
       children: [
-        const CircleAvatar(radius: 30, child: Text('JD')),
+        const CircleAvatar(radius: 30, child: Text('SS')),
         const SizedBox(width: 15),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'John Doe',
+              'salman seftaesa lazuardy',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             Text(
-              'john.doe@tapalkudacoffee.com',
+              'salman.seftaesa@tapalkudacoffee.com',
               style: TextStyle(color: Colors.grey.shade600),
             ),
           ],
@@ -129,12 +134,50 @@ class ProfilePage extends StatelessWidget {
       subtitle: Text(subtitle),
       trailing: const Icon(Icons.chevron_right),
       onTap: () {
-        // TODO: Navigate to respective pages
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Navigate to $title')));
+        _navigateToPage(context, title);
       },
     );
+  }
+
+  void _navigateToPage(BuildContext context, String title) {
+    switch (title) {
+      case 'Edit Profile':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const EditProfilePage()),
+        );
+        break;
+      case 'Vouchers':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const VouchersPage()),
+        );
+        break;
+      case 'Favorites':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const FavoritesPage()),
+        );
+        break;
+      case 'Order History':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const OrderHistoryPage()),
+        );
+        break;
+      case 'Reservation History':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ReservationHistoryPage(),
+          ),
+        );
+        break;
+      default:
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('$title - Coming Soon')));
+    }
   }
 
   Widget _buildLogoutButton(BuildContext context) {

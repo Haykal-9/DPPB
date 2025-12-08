@@ -4,3 +4,7 @@ export 'product_data.dart';
 export 'category_data.dart';
 export 'cart_data.dart';
 export 'order_data.dart';
+export 'history_data.dart';
+export 'voucher_data.dart';
+export 'favorites_data.dart';
+export 'user_profile_data.dart';

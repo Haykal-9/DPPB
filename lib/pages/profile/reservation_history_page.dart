@@ -1,6 +1,6 @@
 // lib/pages/profile/reservation_history_page.dart
 import 'package:flutter/material.dart';
-import '../../data/data.dart'; 
+import '../../data/history_data.dart';
 
 class ReservationHistoryPage extends StatelessWidget {
   const ReservationHistoryPage({super.key});
@@ -9,7 +9,10 @@ class ReservationHistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reservation History', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Reservation History',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16.0),
@@ -46,7 +49,13 @@ class ReservationHistoryPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(reservation['status'].toString().toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, color: statusColor)),
+                Text(
+                  reservation['status'].toString().toUpperCase(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: statusColor,
+                  ),
+                ),
                 Text('Booking ID: ${reservation['id']}'),
               ],
             ),
