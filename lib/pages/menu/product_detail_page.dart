@@ -34,7 +34,36 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               height: 250,
               width: double.infinity,
               color: Colors.grey.shade200,
-              child: Center(child: Text('Image: ${product.name}')),
+              child: Image.asset(
+                product.imagePath,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                errorBuilder: (context, error, stackTrace) {
+                  print('Error loading image: ${product.imagePath}');
+                  print('Error: $error');
+                  return Container(
+                    color: Colors.grey.shade200,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                            size: 50,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Error loading image',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
