@@ -3,5 +3,4 @@
 export 'product_data.dart';
 export 'category_data.dart';
 export 'cart_data.dart';
-export 'comment_data.dart';
 export 'order_data.dart';
