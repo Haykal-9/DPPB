@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/data.dart';
 import '../../pages/menu/product_detail_page.dart';
+import '../../utils/formatter.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -65,7 +66,7 @@ class ProductCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '\$${product.price.toStringAsFixed(2)}',
+                    formatRupiah(product.price),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

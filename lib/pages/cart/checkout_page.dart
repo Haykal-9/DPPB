@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/formatter.dart';
 
 class CheckoutPage extends StatelessWidget {
   const CheckoutPage({super.key});
@@ -63,12 +64,12 @@ class CheckoutPage extends StatelessWidget {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
-        _buildRow('Subtotal', '\$35.00'),
-        _buildRow('Discounts', '-\$2.50', valueColor: Colors.red),
-        _buildRow('Fulfillment', 'Free'),
-        _buildRow('Estimated Taxes', '\$1.75'),
+        _buildRow('Subtotal', formatRupiah(91000.0)),
+        _buildRow('Discounts', '-${formatRupiah(5000.0)}', valueColor: Colors.red),
+        _buildRow('Fulfillment', 'Gratis'),
+        _buildRow('Estimated Taxes', formatRupiah(0.0)),
         const Divider(height: 20, thickness: 1.5),
-        _buildRow('Total', '\$34.25', valueColor: Colors.brown),
+        _buildRow('Total', formatRupiah(86000.0), valueColor: Colors.brown),
       ],
     );
   }
@@ -191,9 +192,9 @@ class CheckoutPage extends StatelessWidget {
                 'Total: (3 items)',
                 style: TextStyle(fontSize: 18, color: Colors.grey),
               ),
-              const Text(
-                '\$34.25',
-                style: TextStyle(
+              Text(
+                formatRupiah(86000.0),
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.brown,

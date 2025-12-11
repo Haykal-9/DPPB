@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/data.dart';
 import 'comments_page.dart';
+import '../../utils/formatter.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final Product product;
@@ -79,7 +80,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '\$${product.price.toStringAsFixed(2)}',
+                    formatRupiah(product.price),
                     style: Theme.of(
                       context,
                     ).textTheme.titleLarge!.copyWith(color: Colors.brown),

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../models/data.dart';
 import './checkout_page.dart';
+import '../../utils/formatter.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
 
-  final double subtotal = 25.00;
+  // Hitung dari mockCartItems: Latte (25000) + Cappucino (22000*2) + ES Kopi Susu (22000) = 91000
+  final double subtotal = 91000.00;
   final double deliveryFee = 0.00;
-  final double total = 25.00;
+  final double total = 91000.00;
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +91,7 @@ class CartPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '\$${item.product.price.toStringAsFixed(2)}',
+                    formatRupiah(item.product.price),
                     style: const TextStyle(
                       color: Colors.brown,
                       fontWeight: FontWeight.bold,
@@ -167,7 +169,7 @@ class CartPage extends StatelessWidget {
           children: [
             const Text('Subtotal (3 items)', style: TextStyle(fontSize: 16)),
             Text(
-              '\$${subtotal.toStringAsFixed(2)}',
+              formatRupiah(subtotal),
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
@@ -179,8 +181,8 @@ class CartPage extends StatelessWidget {
             const Text('Delivery Fee', style: TextStyle(fontSize: 16)),
             Text(
               deliveryFee == 0.00
-                  ? 'FREE'
-                  : '\$${deliveryFee.toStringAsFixed(2)}',
+                  ? 'GRATIS'
+                  : formatRupiah(deliveryFee),
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
@@ -194,7 +196,7 @@ class CartPage extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Text(
-              '\$${total.toStringAsFixed(2)}',
+              formatRupiah(total),
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

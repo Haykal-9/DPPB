@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/favorites_data.dart';
+import '../../utils/formatter.dart';
 
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({super.key});
@@ -77,7 +78,7 @@ class FavoritesPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Rp ${favorite['price'].toStringAsFixed(2)}',
+                    formatRupiah(favorite['price']),
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.brown,
