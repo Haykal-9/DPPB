@@ -1,6 +1,30 @@
 // lib/pages/profile/reservation_history_page.dart
 import 'package:flutter/material.dart';
-import '../../data/history_data.dart';
+
+// Mock data untuk reservation history
+final List<Map<String, dynamic>> mockReservationHistory = [
+  {
+    'id': 'RES001',
+    'date': '2024-12-10',
+    'time': '14:30',
+    'people': 2,
+    'status': 'confirmed',
+  },
+  {
+    'id': 'RES002',
+    'date': '2024-12-08',
+    'time': '19:00',
+    'people': 4,
+    'status': 'confirmed',
+  },
+  {
+    'id': 'RES003',
+    'date': '2024-12-05',
+    'time': '15:45',
+    'people': 3,
+    'status': 'cancelled',
+  },
+];
 
 class ReservationHistoryPage extends StatelessWidget {
   const ReservationHistoryPage({super.key});

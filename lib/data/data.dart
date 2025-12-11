@@ -8,3 +8,4 @@ export 'history_data.dart';
 export 'voucher_data.dart';
 export 'favorites_data.dart';
 export 'user_profile_data.dart';
+export 'comment_data.dart';

@@ -173,10 +173,7 @@ class ProfilePage extends StatelessWidget {
           ),
         );
         break;
-      default:
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('$title - Coming Soon')));
+      
     }
   }
 

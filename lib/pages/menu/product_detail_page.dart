@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/data.dart';
+import 'comments_page.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final Product product;
@@ -176,7 +177,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         const SizedBox(width: 10),
         ElevatedButton(
           onPressed: () {
-            // TODO: Navigate to ProductCommentsPage
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    CommentsPage(productName: widget.product.name),
+              ),
+            );
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.brown,
