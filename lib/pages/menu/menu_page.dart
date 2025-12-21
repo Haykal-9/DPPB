@@ -49,7 +49,25 @@ class MenuPage extends StatelessWidget {
                 ),
                 itemCount: menuProducts.length,
                 itemBuilder: (context, index) {
-                  return MenuProductCard(product: menuProducts[index]);
+                  final product = menuProducts[index];
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4, bottom: 4),
+                        child: Text(
+                          product.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Expanded(child: MenuProductCard(product: product)),
+                    ],
+                  );
                 },
               ),
             ),

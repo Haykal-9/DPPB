@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/data.dart';
 import '../../pages/menu/product_detail_page.dart';
+import '../../pages/cart/checkout_page.dart';
 import '../../utils/formatter.dart';
 
 class MenuProductCard extends StatelessWidget {
@@ -57,44 +58,72 @@ class MenuProductCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    product.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    formatRupiah(product.price),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.brown,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      final snackBar = SnackBar(
-                        content: Text(
-                          '${product.name} ditambahkan ke keranjang.',
+                  // ...info produk lain di sini (nama, harga, dst)...
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            final snackBar = SnackBar(
+                              content: Text(
+                                '${product.name} ditambahkan ke keranjang.',
+                              ),
+                              duration: const Duration(milliseconds: 1500),
+                            );
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(snackBar);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(
+                              color: Color.fromRGBO(121, 85, 72, 1),
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                          ),
+                          child: const Text(
+                            'Add to Cart',
+                            style: TextStyle(
+                              color: Colors.brown,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
                         ),
-                        duration: const Duration(milliseconds: 1500),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.brown,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 30),
-                    ),
-                    child: const Text(
-                      'Add to Cart',
-                      style: TextStyle(fontSize: 12),
-                    ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const CheckoutPage(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromARGB(255, 145, 94, 71),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            elevation: 2,
+                          ),
+                          child: const Text(
+                            'Buy Now',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

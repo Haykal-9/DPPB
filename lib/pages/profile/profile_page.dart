@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'order_history_page.dart';
 import 'reservation_history_page.dart';
-import 'edit_profile_page.dart';
-import 'vouchers_page.dart';
-import 'favorites_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -90,24 +87,6 @@ class ProfilePage extends StatelessWidget {
       children: [
         _buildSettingTile(
           context,
-          'Edit Profile',
-          'Update your personal details',
-          Icons.person_outline,
-        ),
-        _buildSettingTile(
-          context,
-          'Vouchers',
-          'You have 3 active vouchers',
-          Icons.card_giftcard,
-        ),
-        _buildSettingTile(
-          context,
-          'Favorites',
-          'Your 5 favorite coffee items',
-          Icons.favorite_border,
-        ),
-        _buildSettingTile(
-          context,
           'Order History',
           'See order History',
           Icons.history,
@@ -141,24 +120,6 @@ class ProfilePage extends StatelessWidget {
 
   void _navigateToPage(BuildContext context, String title) {
     switch (title) {
-      case 'Edit Profile':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const EditProfilePage()),
-        );
-        break;
-      case 'Vouchers':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const VouchersPage()),
-        );
-        break;
-      case 'Favorites':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const FavoritesPage()),
-        );
-        break;
       case 'Order History':
         Navigator.push(
           context,
@@ -173,7 +134,6 @@ class ProfilePage extends StatelessWidget {
           ),
         );
         break;
-      
     }
   }
 

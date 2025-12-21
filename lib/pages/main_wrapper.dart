@@ -3,6 +3,7 @@ import 'home/home_page.dart';
 import 'menu/menu_page.dart';
 import 'profile/profile_page.dart';
 import '../widgets/app_widgets.dart';
+import 'reservation_page.dart';
 
 // =========================================================================
 // MAIN WRAPPER (STATEFUL WIDGET UNTUK NAVIGASI BOTTOM BAR)
@@ -22,6 +23,8 @@ class _MainWrapperState extends State<MainWrapper> {
   final List<Widget> _screens = [
     const HomePage(),
     const MenuPage(),
+    ReservationPage(),
+
     const ProfilePage(),
   ];
 
@@ -45,7 +48,6 @@ class _MainWrapperState extends State<MainWrapper> {
                 icon: Icons.home_filled,
                 label: 'Home',
                 isSelected: _currentIndex == 0,
-                onTap: () => _onItemTapped(0),
               ),
             ),
             GestureDetector(
@@ -54,16 +56,22 @@ class _MainWrapperState extends State<MainWrapper> {
                 icon: Icons.menu_book,
                 label: 'Menu',
                 isSelected: _currentIndex == 1,
-                onTap: () => _onItemTapped(1),
               ),
             ),
             GestureDetector(
               onTap: () => _onItemTapped(2),
               child: NavBarItem(
+                icon: Icons.event_seat,
+                label: 'Reservation',
+                isSelected: _currentIndex == 2,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _onItemTapped(3),
+              child: NavBarItem(
                 icon: Icons.person_outline,
                 label: 'Profile',
-                isSelected: _currentIndex == 2,
-                onTap: () => _onItemTapped(2),
+                isSelected: _currentIndex == 3,
               ),
             ),
           ],

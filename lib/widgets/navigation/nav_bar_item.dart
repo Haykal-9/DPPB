@@ -4,13 +4,11 @@ class NavBarItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool isSelected;
-  final VoidCallback onTap;
 
   const NavBarItem({
     required this.icon,
     required this.label,
     required this.isSelected,
-    required this.onTap,
     super.key,
   });
 

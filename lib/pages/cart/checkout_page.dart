@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../utils/formatter.dart';
 
-class CheckoutPage extends StatelessWidget {
+class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
+
+  @override
+  State<CheckoutPage> createState() => _CheckoutPageState();
+}
+
+class _CheckoutPageState extends State<CheckoutPage> {
+  String selectedPaymentMethod = 'Credit/Debit Card';
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +30,35 @@ class CheckoutPage extends StatelessWidget {
               _buildOrderSummary(),
               const Divider(height: 30),
               _buildPaymentMethod(),
+              if (selectedPaymentMethod == 'QR Pay') ...[
+                const SizedBox(height: 20),
+                Center(
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Scan QRIS untuk pembayaran',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 12),
+                          QrImageView(
+                            data:
+                                'https://contoh-qris.com/1234567890', // Ganti dengan data QRIS asli jika ada
+                            version: QrVersions.auto,
+                            size: 180.0,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               const Divider(height: 30),
               _buildFulfillmentOptions(context),
             ],
@@ -65,7 +102,11 @@ class CheckoutPage extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _buildRow('Subtotal', formatRupiah(91000.0)),
-        _buildRow('Discounts', '-${formatRupiah(5000.0)}', valueColor: Colors.red),
+        _buildRow(
+          'Discounts',
+          '-${formatRupiah(5000.0)}',
+          valueColor: Colors.red,
+        ),
         _buildRow('Fulfillment', 'Gratis'),
         _buildRow('Estimated Taxes', formatRupiah(0.0)),
         const Divider(height: 20, thickness: 1.5),
@@ -86,20 +127,21 @@ class CheckoutPage extends StatelessWidget {
         _buildOptionCard(
           Icons.credit_card,
           'Credit/Debit Card',
-          isSelected: true,
-          onTap: () {},
+          isSelected: selectedPaymentMethod == 'Credit/Debit Card',
+          onTap: () =>
+              setState(() => selectedPaymentMethod = 'Credit/Debit Card'),
         ),
         _buildOptionCard(
           Icons.wallet,
           'E-Wallet',
-          isSelected: false,
-          onTap: () {},
+          isSelected: selectedPaymentMethod == 'E-Wallet',
+          onTap: () => setState(() => selectedPaymentMethod = 'E-Wallet'),
         ),
         _buildOptionCard(
           Icons.qr_code,
           'QR Pay',
-          isSelected: false,
-          onTap: () {},
+          isSelected: selectedPaymentMethod == 'QR Pay',
+          onTap: () => setState(() => selectedPaymentMethod = 'QR Pay'),
         ),
       ],
     );
