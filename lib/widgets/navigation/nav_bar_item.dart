@@ -17,12 +17,22 @@ class NavBarItem extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: isSelected ? Colors.brown : Colors.grey),
+        Icon(
+          icon,
+          color: isSelected
+              ? const Color(0xFFD4AF37)
+              : const Color(0xFF8D7B68), // Gold : Soft Brown
+          size: 24, // Explicit size
+        ),
+        const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.brown : Colors.grey,
-            fontSize: 12,
+            color: isSelected
+                ? const Color(0xFF2C2219)
+                : const Color(0xFF8D7B68), // Deep Coffee : Soft Brown
+            fontSize: 10, // Smaller font
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
           ),
         ),
       ],

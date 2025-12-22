@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../utils/formatter.dart';
+import 'payment_success_page.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -10,260 +11,600 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  String selectedPaymentMethod = 'Credit/Debit Card';
+  // Theme Constants
+  final Color _bgPage = const Color(0xFFF9F5F0);
+  final Color _textPrimary = const Color(0xFF2C2219);
+  final Color _textSecondary = const Color(0xFF8D7B68);
+  final Color _goldPrimary = const Color(0xFFD4AF37);
+
+  String selectedPaymentMethod = 'QRIS';
+  String selectedDiningMode = 'Pickup'; // 'Pickup' or 'Dine In'
+
+  final TextEditingController _tableController = TextEditingController();
+
+  // Constants
+  final double totalAmount = 86000.0;
+
+  @override
+  void dispose() {
+    _tableController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Checkout',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildOrderSummary(),
-              const Divider(height: 30),
-              _buildPaymentMethod(),
-              if (selectedPaymentMethod == 'QR Pay') ...[
-                const SizedBox(height: 20),
-                Center(
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+      backgroundColor: _bgPage,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            Expanded(
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // 1. Header
+                  SliverAppBar(
+                    backgroundColor: _bgPage,
+                    elevation: 0,
+                    pinned: true,
+                    leading: const BackButton(color: Color(0xFF2C2219)),
+                    centerTitle: true,
+                    title: Text(
+                      'Checkout',
+                      style: TextStyle(
+                        fontFamily: 'Serif',
+                        fontWeight: FontWeight.bold,
+                        color: _textPrimary,
+                        fontSize: 22,
+                      ),
                     ),
+                  ),
+
+                  // 2. Dining Mode Selector
+                  SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+                      child: _buildDiningModeSelector(),
+                    ),
+                  ),
+
+                  // 3. Fulfillment Details
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                      child: selectedDiningMode == 'Pickup'
+                          ? _buildStoreLocation()
+                          : _buildTableInput(),
+                    ),
+                  ),
+
+                  // 4. Payment Method
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Scan QRIS untuk pembayaran',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          Text(
+                            'Payment Method',
+                            style: TextStyle(
+                              fontFamily: 'Serif',
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: _textPrimary,
+                            ),
                           ),
-                          const SizedBox(height: 12),
-                          QrImageView(
-                            data:
-                                'https://contoh-qris.com/1234567890', // Ganti dengan data QRIS asli jika ada
-                            version: QrVersions.auto,
-                            size: 180.0,
-                          ),
+                          const SizedBox(height: 16),
+                          _buildPaymentSelector(),
+                          const SizedBox(height: 24),
+
+                          // QRIS Display
+                          if (selectedPaymentMethod == 'QRIS')
+                            _buildQRISSection(),
+                          // Cashier Display
+                          if (selectedPaymentMethod == 'Cashier')
+                            _buildCashierSection(),
                         ],
                       ),
                     ),
                   ),
+
+                  // 5. Order Summary
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+                      child: _buildOrderSummary(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // 6. Bottom Action
+            _buildBottomBar(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDiningModeSelector() {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _textSecondary.withOpacity(0.1)),
+      ),
+      child: Row(
+        children: [
+          _buildModeButton('Pickup', Icons.storefront_rounded),
+          _buildModeButton('Dine In', Icons.table_restaurant_rounded),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModeButton(String mode, IconData icon) {
+    final isSelected = selectedDiningMode == mode;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            selectedDiningMode = mode;
+          });
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? _textPrimary : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: isSelected ? _goldPrimary : _textSecondary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                mode,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? Colors.white : _textSecondary,
                 ),
-              ],
-              const Divider(height: 30),
-              _buildFulfillmentOptions(context),
+              ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: _buildTotalAndPlaceOrder(context),
     );
   }
 
-  Widget _buildRow(String title, String value, {Color? valueColor}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
+  Widget _buildStoreLocation() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Pick Up at',
+          style: TextStyle(
+            fontFamily: 'Serif',
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: _textPrimary,
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: valueColor ?? Colors.black,
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: _textPrimary.withOpacity(0.05),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                height: 60,
+                width: 60,
+                decoration: BoxDecoration(
+                  color: _goldPrimary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  image: const DecorationImage(
+                    image: AssetImage('assets/images/logo/logo.png'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Morning Roast Coffee',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: _textPrimary,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Jl. Telekomunikasi No. 1, Bandung Tech Park',
+                      style: TextStyle(
+                        color: _textSecondary,
+                        fontSize: 13,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableInput() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Table Number',
+          style: TextStyle(
+            fontFamily: 'Serif',
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: _textPrimary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _goldPrimary.withOpacity(0.5)),
+          ),
+          child: TextField(
+            controller: _tableController,
+            keyboardType: TextInputType.number,
+            style: TextStyle(color: _textPrimary, fontWeight: FontWeight.bold),
+            decoration: InputDecoration(
+              icon: Icon(Icons.table_bar, color: _goldPrimary),
+              hintText: 'Enter table number (e.g. 12)',
+              hintStyle: TextStyle(color: _textSecondary.withOpacity(0.5)),
+              border: InputBorder.none,
             ),
           ),
-        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPaymentSelector() {
+    final methods = [
+      {'icon': Icons.qr_code_2, 'label': 'QRIS'},
+      {'icon': Icons.point_of_sale, 'label': 'Cashier'},
+    ];
+
+    return SizedBox(
+      height: 90,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: methods.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final method = methods[index];
+          final isSelected = selectedPaymentMethod == method['label'];
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                selectedPaymentMethod = method['label'] as String;
+              });
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 100,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isSelected ? _textPrimary : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isSelected
+                      ? _textPrimary
+                      : Colors.grey.withOpacity(0.2),
+                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: _textPrimary.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ]
+                    : [],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    method['icon'] as IconData,
+                    color: isSelected ? _goldPrimary : _textSecondary,
+                    size: 28,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    method['label'] as String,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : _textPrimary,
+                      fontSize: 12,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildQRISSection() {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: _goldPrimary.withOpacity(0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.qr_code_scanner, color: _goldPrimary),
+                const SizedBox(width: 8),
+                Text(
+                  'Scan to Pay',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: _textPrimary,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            QrImageView(
+              data: 'https://example.com/payment',
+              version: QrVersions.auto,
+              size: 200.0,
+              backgroundColor: Colors.white,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Waiting for payment...',
+              style: TextStyle(
+                color: _textSecondary,
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCashierSection() {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: _goldPrimary.withOpacity(0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(Icons.storefront_rounded, color: _goldPrimary, size: 48),
+            const SizedBox(height: 16),
+            Text(
+              'Pay at Cashier',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: _textPrimary,
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please show your order details to the cashier to complete payment.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: _textSecondary, height: 1.5),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildOrderSummary() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Order Summary',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        _buildRow('Subtotal', formatRupiah(91000.0)),
-        _buildRow(
-          'Discounts',
-          '-${formatRupiah(5000.0)}',
-          valueColor: Colors.red,
-        ),
-        _buildRow('Fulfillment', 'Gratis'),
-        _buildRow('Estimated Taxes', formatRupiah(0.0)),
-        const Divider(height: 20, thickness: 1.5),
-        _buildRow('Total', formatRupiah(86000.0), valueColor: Colors.brown),
-      ],
-    );
-  }
-
-  Widget _buildPaymentMethod() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Payment Method',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        _buildOptionCard(
-          Icons.credit_card,
-          'Credit/Debit Card',
-          isSelected: selectedPaymentMethod == 'Credit/Debit Card',
-          onTap: () =>
-              setState(() => selectedPaymentMethod = 'Credit/Debit Card'),
-        ),
-        _buildOptionCard(
-          Icons.wallet,
-          'E-Wallet',
-          isSelected: selectedPaymentMethod == 'E-Wallet',
-          onTap: () => setState(() => selectedPaymentMethod = 'E-Wallet'),
-        ),
-        _buildOptionCard(
-          Icons.qr_code,
-          'QR Pay',
-          isSelected: selectedPaymentMethod == 'QR Pay',
-          onTap: () => setState(() => selectedPaymentMethod = 'QR Pay'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFulfillmentOptions(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Fulfillment Options',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        _buildOptionCard(
-          Icons.delivery_dining,
-          'Delivery',
-          isSelected: true,
-          onTap: () {},
-        ),
-        _buildOptionCard(
-          Icons.location_on,
-          '123 Coffee Lane, Central City, 1000',
-          isSelected: false,
-          onTap: () {},
-        ),
-        _buildOptionCard(
-          Icons.store,
-          'Pickup',
-          isSelected: false,
-          onTap: () {},
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOptionCard(
-    IconData icon,
-    String title, {
-    bool isSelected = false,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8.0),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(
-          color: isSelected ? Colors.brown : Colors.grey.shade300,
-          width: isSelected ? 2 : 1,
-        ),
-      ),
-      child: ListTile(
-        leading: Icon(
-          icon,
-          color: isSelected ? Colors.brown : Colors.grey.shade600,
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: isSelected ? Colors.brown : Colors.black,
-          ),
-        ),
-        onTap: onTap,
-      ),
-    );
-  }
-
-  Widget _buildTotalAndPlaceOrder(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade300,
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Total: (3 items)',
-                style: TextStyle(fontSize: 18, color: Colors.grey),
+              Text(
+                'Total Payment',
+                style: TextStyle(
+                  fontFamily: 'Serif',
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: _textPrimary,
+                ),
               ),
               Text(
-                formatRupiah(86000.0),
-                style: const TextStyle(
+                formatRupiah(totalAmount),
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.brown,
+                  color: _goldPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          ElevatedButton(
+          const SizedBox(height: 16),
+          // Check items (Mock)
+          _buildSummaryItem('Latte', 1, 25000),
+          _buildSummaryItem('Cappucino', 2, 44000),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.0),
+            child: Divider(),
+          ),
+          Row(
+            children: [
+              Icon(Icons.info_outline, size: 16, color: _textSecondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  selectedDiningMode == 'Pickup'
+                      ? 'Please pick up at counter when ready.'
+                      : 'We will serve to your table.',
+                  style: TextStyle(
+                    color: _textSecondary,
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryItem(String name, int qty, double price) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '${qty}x $name',
+            style: TextStyle(color: _textSecondary, fontSize: 14),
+          ),
+          Text(
+            formatRupiah(price),
+            style: TextStyle(
+              color: _textPrimary,
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomBar(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 30,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          width: double.infinity,
+          height: 60,
+          child: ElevatedButton(
             onPressed: () {
-              // TODO: Navigate to Order Tracking
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Order placed successfully!')),
+              // Navigate to Success Page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PaymentSuccessPage(
+                    totalAmount: totalAmount,
+                    paymentMethod: selectedPaymentMethod,
+                  ),
+                ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.brown,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              minimumSize: const Size(double.infinity, 50),
+              backgroundColor: _textPrimary,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
+              elevation: 0,
             ),
-            child: const Text('Place Order', style: TextStyle(fontSize: 18)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.lock_outline, size: 20, color: Colors.white),
+                const SizedBox(width: 8),
+                Text(
+                  'Pay ${formatRupiah(totalAmount)}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }

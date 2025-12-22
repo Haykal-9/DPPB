@@ -1,108 +1,258 @@
-// lib/pages/profile/reservation_history_page.dart
 import 'package:flutter/material.dart';
-
-// Mock data untuk reservation history
-final List<Map<String, dynamic>> mockReservationHistory = [
-  {
-    'id': 'RES001',
-    'date': '2024-12-10',
-    'time': '14:30',
-    'people': 2,
-    'status': 'confirmed',
-  },
-  {
-    'id': 'RES002',
-    'date': '2024-12-08',
-    'time': '19:00',
-    'people': 4,
-    'status': 'confirmed',
-  },
-  {
-    'id': 'RES003',
-    'date': '2024-12-05',
-    'time': '15:45',
-    'people': 3,
-    'status': 'cancelled',
-  },
-];
+import '../../data/reservation_data.dart';
 
 class ReservationHistoryPage extends StatelessWidget {
   const ReservationHistoryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Reservation History',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: mockReservationHistory.length,
-        itemBuilder: (context, index) {
-          final reservation = mockReservationHistory[index];
-          return _buildReservationCard(reservation);
-        },
-      ),
-    );
-  }
+    // Theme Constants
+    const Color bgPage = Color(0xFFF9F5F0);
+    const Color textPrimary = Color(0xFF2C2219);
+    const Color textSecondary = Color(0xFF8D7B68);
+    const Color goldPrimary = Color(0xFFD4AF37);
 
-  Widget _buildReservationCard(Map<String, dynamic> reservation) {
-    Color statusColor;
-    switch (reservation['status']) {
-      case 'confirmed':
-        statusColor = Colors.green;
-        break;
-      case 'cancelled':
-        statusColor = Colors.red;
-        break;
-      default:
-        statusColor = Colors.amber;
-    }
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  reservation['status'].toString().toUpperCase(),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: statusColor,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: bgPage,
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              SliverAppBar(
+                backgroundColor: bgPage,
+                elevation: 0,
+                pinned: true,
+                leading: const BackButton(color: textPrimary),
+                expandedHeight: 160,
+                flexibleSpace: FlexibleSpaceBar(
+                  titlePadding: const EdgeInsets.fromLTRB(60, 0, 24, 60),
+                  title: const Text(
+                    'Reservations',
+                    style: TextStyle(
+                      fontFamily: 'Serif',
+                      color: textPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                    ),
                   ),
                 ),
-                Text('Booking ID: ${reservation['id']}'),
-              ],
-            ),
-            const Divider(),
-            _buildDetailRow(Icons.calendar_today, reservation['date']),
-            _buildDetailRow(Icons.access_time, reservation['time']),
-            _buildDetailRow(Icons.people, '${reservation['people']} People'),
-          ],
+                bottom: TabBar(
+                  indicatorColor: goldPrimary,
+                  labelColor: textPrimary,
+                  unselectedLabelColor: textSecondary,
+                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  tabs: const [
+                    Tab(text: 'Upcoming'),
+                    Tab(text: 'History'),
+                  ],
+                ),
+              ),
+            ];
+          },
+          body: TabBarView(
+            children: [
+              _buildReservationList(
+                mockUpcomingReservations,
+                textPrimary,
+                textSecondary,
+                goldPrimary,
+              ),
+              _buildReservationList(
+                mockHistoryReservations,
+                textPrimary,
+                textSecondary,
+                goldPrimary,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: Colors.grey.shade600),
-          const SizedBox(width: 10),
-          Text(text),
-        ],
-      ),
+  Widget _buildReservationList(
+    List<Map<String, dynamic>> reservations,
+    Color textPrimary,
+    Color textSecondary,
+    Color goldPrimary,
+  ) {
+    if (reservations.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.event_busy,
+              size: 64,
+              color: textSecondary.withOpacity(0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No reservations found',
+              style: TextStyle(color: textSecondary, fontSize: 16),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(24),
+      itemCount: reservations.length,
+      itemBuilder: (context, index) {
+        final res = reservations[index];
+        final status = (res['status'] as String?) ?? 'Pending';
+
+        Color statusColor;
+        Color statusBg;
+
+        switch (status) {
+          case 'Confirmed':
+            statusColor = Colors.green;
+            statusBg = Colors.green.withOpacity(0.1);
+            break;
+          case 'Pending':
+            statusColor = Colors.orange;
+            statusBg = Colors.orange.withOpacity(0.1);
+            break;
+          case 'Cancelled':
+            statusColor = Colors.red;
+            statusBg = Colors.red.withOpacity(0.1);
+            break;
+          default: // Completed
+            statusColor = Colors.grey;
+            statusBg = Colors.black.withOpacity(0.05);
+        }
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: statusBg,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      status,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    res['id'] ?? '',
+                    style: TextStyle(
+                      color: textSecondary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              Row(
+                children: [
+                  // Date Box
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: goldPrimary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          (res['date'] as String).split(' ')[0], // Date num
+                          style: TextStyle(
+                            color: goldPrimary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        Text(
+                          (res['date'] as String).split(' ')[1], // Month
+                          style: TextStyle(color: goldPrimary, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          res['location'] ?? 'Table',
+                          style: TextStyle(
+                            color: textPrimary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              size: 14,
+                              color: textSecondary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              res['time'] ?? '',
+                              style: TextStyle(
+                                color: textSecondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Icon(Icons.people, size: 14, color: textSecondary),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${res['pax']} People',
+                              style: TextStyle(
+                                color: textSecondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

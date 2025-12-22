@@ -9,9 +9,16 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
+
+  // Light Luxury Theme Constants
+  final Color _goldPrimary = const Color(0xFFD4AF37);
+  final Color _bgPage = const Color(0xFFF9F5F0); // Cream / Off-White
+  final Color _bgCard = const Color(0xFFFFFFFF); // Pure White
+  final Color _textPrimary = const Color(0xFF4A3B32); // Dark Coffee Brown
+  final Color _textSecondary = const Color(0xFF8D7B68); // Lighter Brown/Grey
 
   @override
   Widget build(BuildContext context) {
@@ -19,219 +26,219 @@ class _LoginPageState extends State<LoginPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background image
-          Image.asset('assets/images/makanan/biji.jpg', fit: BoxFit.cover),
-          // Overlay gelap agar form lebih kontras
-          Container(color: Colors.black.withOpacity(0.55)),
+          // 1. Background (Solid Cream)
+          Container(color: _bgPage),
+
+          // 2. Abstract Pattern (Dark Coffee Lines - Very Subtle)
+          CustomPaint(
+            painter: BackgroundPatternPainter(
+              color: _textPrimary.withOpacity(0.05),
+            ),
+            child: Container(),
+          ),
+
+          // 3. Main Content (Card)
           Center(
             child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20), // Slightly reduced from 24
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Judul
-                  const Text(
-                    'Welcome to Tapal Kuda Coffee',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 1.2,
-                      shadows: [Shadow(color: Colors.black38, blurRadius: 8)],
+                  // The Main Card
+                  Card(
+                    elevation: 8,
+                    shadowColor: Colors.black12,
+                    color: _bgCard,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  // Card Form Custom
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 24),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 28,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.18),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.4),
-                        width: 1.2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.10),
-                          blurRadius: 18,
-                        ),
-                      ],
-                    ),
-                    child: Form(
-                      key: _formKey,
+                    clipBehavior: Clip.antiAlias,
+                    child: Container(
+                      width: double.infinity,
+                      constraints: const BoxConstraints(
+                        maxWidth: 350,
+                      ), // Compact width
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 32,
+                        horizontal: 24,
+                      ), // Compact padding
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Email
-                          TextFormField(
-                            controller: _emailController,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: 'Email',
-                              hintStyle: TextStyle(color: Colors.white70),
-                              prefixIcon: const Icon(
-                                Icons.email_outlined,
-                                color: Colors.white70,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.white38,
-                                  width: 1.2,
+                          // 1. Logo Section
+                          Container(
+                            height: 90, // Reduced from 120
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _goldPrimary.withOpacity(0.15),
+                                  blurRadius: 30,
+                                  spreadRadius: 0,
                                 ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF6F4E37),
-                                  width: 1.6,
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: Colors.white.withOpacity(0.08),
+                              ],
                             ),
-                            keyboardType: TextInputType.emailAddress,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
-                              }
-                              if (!RegExp(
-                                r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
-                              ).hasMatch(value)) {
-                                return 'Enter a valid email';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 18),
-                          // Password
-                          TextFormField(
-                            controller: _passwordController,
-                            style: const TextStyle(color: Colors.white),
-                            obscureText: _obscurePassword,
-                            decoration: InputDecoration(
-                              hintText: 'Password',
-                              hintStyle: TextStyle(color: Colors.white70),
-                              prefixIcon: const Icon(
-                                Icons.lock_outline,
-                                color: Colors.white70,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.white38,
-                                  width: 1.2,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF6F4E37),
-                                  width: 1.6,
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: Colors.white.withOpacity(0.08),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
-                                  color: Colors.white70,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscurePassword = !_obscurePassword;
-                                  });
-                                },
-                              ),
+                            child: Image.asset(
+                              'assets/images/logo/logo.png',
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(
+                                  Icons.broken_image,
+                                  size: 50,
+                                  color: _textSecondary,
+                                );
+                              },
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
-                              }
-                              if (value.length < 6) {
-                                return 'Password must be at least 6 characters';
-                              }
-                              return null;
-                            },
                           ),
-                          const SizedBox(height: 18),
-                          // Tombol login dengan gradient
-                          SizedBox(
-                            width: double.infinity,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF6F4E37),
-                                    Color(0xFFB4845C),
+
+                          const SizedBox(height: 16),
+
+                          // Brand Text
+                          Text(
+                            'TAPAL KUDA',
+                            style: TextStyle(
+                              fontFamily: 'Serif',
+                              fontSize: 24, // Slightly smaller
+                              fontWeight: FontWeight.w800,
+                              color: _textPrimary,
+                              letterSpacing: 2.0,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            'PREMIUM ROASTERY',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: _goldPrimary,
+                              letterSpacing: 4.0,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+
+                          const SizedBox(height: 32), // Compact spacing
+                          // 2. Login Form Section
+                          Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Username
+                                _buildLightField(
+                                  controller: _usernameController,
+                                  label: 'Username',
+                                  icon: Icons.person_outline_rounded,
+                                  validator: (val) => (val?.isEmpty ?? true)
+                                      ? 'Required'
+                                      : null,
+                                ),
+                                const SizedBox(height: 16), // Compact spacing
+                                // Password
+                                _buildLightField(
+                                  controller: _passwordController,
+                                  label: 'Password',
+                                  icon: Icons.lock_outline_rounded,
+                                  isPassword: true,
+                                  isObscure: _obscurePassword,
+                                  onToggle: () => setState(
+                                    () => _obscurePassword = !_obscurePassword,
+                                  ),
+                                  validator: (val) => (val?.isEmpty ?? true)
+                                      ? 'Required'
+                                      : null,
+                                ),
+
+                                const SizedBox(height: 8),
+
+                                // Forgot Password
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: () {},
+                                    child: Text(
+                                      'Forgot Password?',
+                                      style: TextStyle(
+                                        color: _textSecondary,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 24), // Compact spacing
+                                // Login Button
+                                ElevatedButton(
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      Navigator.pushReplacementNamed(
+                                        context,
+                                        '/home',
+                                      );
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: _goldPrimary,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    elevation: 4,
+                                    shadowColor: _goldPrimary.withOpacity(0.4),
+                                  ),
+                                  child: const Text(
+                                    'SIGN IN',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 24), // Compact spacing
+                                // Register Link
+                                Wrap(
+                                  alignment: WrapAlignment.center,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Text(
+                                      "New here? ",
+                                      style: TextStyle(
+                                        color: _textSecondary,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {},
+                                      child: Text(
+                                        'Create an account',
+                                        style: TextStyle(
+                                          color: _textPrimary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
                                   ],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
                                 ),
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.08),
-                                    blurRadius: 6,
-                                  ),
-                                ],
-                              ),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 14,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                onPressed: () {
-                                  if (_formKey.currentState!.validate()) {
-                                    Navigator.pushReplacementNamed(
-                                      context,
-                                      '/home',
-                                    );
-                                  }
-                                },
-                                child: const Text(
-                                  'Login',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.1,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          // Lupa password
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () {},
-                              child: const Text(
-                                'Lupa password?',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 13,
-                                ),
-                              ),
+                              ],
                             ),
                           ),
                         ],
                       ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Bottom Copyright
+                  Text(
+                    '© 2025 Tapal Kuda Coffee',
+                    style: TextStyle(
+                      color: _textSecondary.withOpacity(0.6),
+                      fontSize: 11,
                     ),
                   ),
                 ],
@@ -241,5 +248,114 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
+  }
+
+  Widget _buildLightField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool isPassword = false,
+    bool? isObscure,
+    VoidCallback? onToggle,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isObscure ?? false,
+      style: TextStyle(color: _textPrimary, fontWeight: FontWeight.w500),
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: _textSecondary, fontSize: 14),
+        prefixIcon: Icon(icon, color: _textSecondary, size: 22),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  isObscure!
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  color: _textSecondary,
+                  size: 22,
+                ),
+                onPressed: onToggle,
+              )
+            : null,
+        filled: true,
+        fillColor: const Color(0xFFF5F5F5), // Light Grey Fill
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.transparent),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: _goldPrimary, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ), // Reduced vertical padding
+      ),
+    );
+  }
+}
+
+// Reuse Painter but with adjustable color
+class BackgroundPatternPainter extends CustomPainter {
+  final Color color;
+  BackgroundPatternPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    var path = Path();
+
+    // Abstract curve 1
+    path.moveTo(0, size.height * 0.7);
+    path.quadraticBezierTo(
+      size.width * 0.5,
+      size.height * 0.5,
+      size.width,
+      size.height * 0.8,
+    );
+
+    // Abstract curve 2 (inverted)
+    path.moveTo(size.width, size.height * 0.3);
+    path.quadraticBezierTo(
+      size.width * 0.5,
+      size.height * 0.9,
+      0,
+      size.height * 0.4,
+    );
+
+    canvas.drawPath(path, paint);
+
+    // Add golden circles pattern (Solid fill this time for visibility on light)
+    var goldPaint = Paint()
+      ..color = const Color(0xFFD4AF37).withOpacity(0.08)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(
+      Offset(size.width * 0.1, size.height * 0.2),
+      60,
+      goldPaint,
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.9, size.height * 0.85),
+      100,
+      goldPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }

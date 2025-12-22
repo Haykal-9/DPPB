@@ -1,36 +1,59 @@
 import 'package:flutter/material.dart';
 import 'order_history_page.dart';
 import 'reservation_history_page.dart';
+import '../login_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
+  // Theme Colors
+  final Color _bgPage = const Color(0xFFF9F5F0);
+  final Color _goldPrimary = const Color(0xFFD4AF37);
+  final Color _textPrimary = const Color(0xFF2C2219);
+  final Color _textSecondary = const Color(0xFF8D7B68);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _bgPage,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text(
-          'Profile',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        backgroundColor: _bgPage,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'My Profile',
+          style: TextStyle(
+            fontFamily: 'Serif',
+            fontWeight: FontWeight.bold,
+            color: _textPrimary,
+          ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildProfileHeader(),
-            const SizedBox(height: 20),
-            _buildLoyaltyRewards(),
-            const SizedBox(height: 20),
-            const Text(
-              'Menu',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+
+            const SizedBox(height: 32),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Account Settings',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Serif',
+                  color: _textPrimary,
+                ),
+              ),
             ),
+            const SizedBox(height: 16),
             _buildSettingTiles(context),
-            const SizedBox(height: 30),
+            const SizedBox(height: 40),
             _buildLogoutButton(context),
+            const SizedBox(height: 40), // Bottom padding
           ],
         ),
       ),
@@ -38,47 +61,50 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildProfileHeader() {
-    return Row(
+    return Column(
       children: [
-        const CircleAvatar(radius: 30, child: Text('SS')),
-        const SizedBox(width: 15),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'salman seftaesa lazuardy',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              'salman.seftaesa@tapalkudacoffee.com',
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-          ],
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: _goldPrimary, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: _goldPrimary.withOpacity(0.2),
+                blurRadius: 15,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: CircleAvatar(
+            radius: 50,
+            backgroundColor: Colors.grey.shade200,
+            backgroundImage: const AssetImage(
+              'assets/logo/logo.png',
+            ), // Placeholder or User Image
+            // If asset not found, it will just show bg color.
+            // Better to handle gracefully or use text fallback if desired,
+            // but for "Profile" usually an image is expected.
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Salman Seftaesa Lazuardy',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Serif',
+            color: _textPrimary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'salman.seftaesa@tapalkudacoffee.com',
+          style: TextStyle(color: _textSecondary, fontSize: 14),
+          textAlign: TextAlign.center,
         ),
       ],
-    );
-  }
-
-  Widget _buildLoyaltyRewards() {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Loyalty Rewards',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'You\'re only 3 orders away from a free coffee!',
-              style: TextStyle(color: Colors.brown.shade600),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -87,15 +113,24 @@ class ProfilePage extends StatelessWidget {
       children: [
         _buildSettingTile(
           context,
-          'Order History',
-          'See order History',
-          Icons.history,
+          'My Orders',
+          'Track active and past orders',
+          Icons.shopping_bag_outlined,
+          () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (c) => const OrderHistoryPage()),
+          ),
         ),
+        const SizedBox(height: 16),
         _buildSettingTile(
           context,
-          'Reservation History',
-          'See Reservations History',
-          Icons.table_chart_outlined,
+          'Reservations',
+          'Manage your table bookings',
+          Icons.calendar_today_outlined,
+          () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (c) => const ReservationHistoryPage()),
+          ),
         ),
       ],
     );
@@ -106,49 +141,88 @@ class ProfilePage extends StatelessWidget {
     String title,
     String subtitle,
     IconData icon,
+    VoidCallback onTap,
   ) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.brown),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-      subtitle: Text(subtitle),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () {
-        _navigateToPage(context, title);
-      },
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: _bgPage,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: _textSecondary),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: _textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: _textSecondary.withOpacity(0.8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: _textSecondary.withOpacity(0.5),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  void _navigateToPage(BuildContext context, String title) {
-    switch (title) {
-      case 'Order History':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const OrderHistoryPage()),
-        );
-        break;
-      case 'Reservation History':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ReservationHistoryPage(),
-          ),
-        );
-        break;
-    }
-  }
-
   Widget _buildLogoutButton(BuildContext context) {
-    return Center(
-      child: TextButton(
-        onPressed: () {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Logged Out!')));
-        },
-        child: const Text(
-          'Logout',
-          style: TextStyle(color: Colors.red, fontSize: 16),
+    return TextButton.icon(
+      onPressed: () {
+        // Clear session data if any (e.g., SharedPreferences) here
+
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+          (route) => false,
+        );
+      },
+      icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
+      label: const Text(
+        'Log Out',
+        style: TextStyle(
+          color: Colors.redAccent,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
         ),
+      ),
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       ),
     );
   }

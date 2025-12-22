@@ -2,147 +2,207 @@ import 'package:flutter/material.dart';
 import '../../models/data.dart';
 import '../../widgets/app_widgets.dart';
 
-class MenuPage extends StatelessWidget {
+class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
+
+  @override
+  State<MenuPage> createState() => _MenuPageState();
+}
+
+class _MenuPageState extends State<MenuPage> {
+  // Theme Constants
+  final Color _bgPage = const Color(0xFFF9F5F0);
+  final Color _textPrimary = const Color(0xFF2C2219);
+  final Color _textSecondary = const Color(0xFF8D7B68);
+  final Color _goldAccent = const Color(0xFFD4AF37);
+
+  String _selectedCategory = 'All';
+
+  // Filter Logic
+  List<Product> get _filteredProducts {
+    if (_selectedCategory == 'All') {
+      return menuProducts;
+    }
+    return menuProducts
+        .where((p) => (p.category ?? 'Coffee') == _selectedCategory)
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text(
-          'Our Menu',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                _buildSearchBar(),
-                const SizedBox(height: 16),
-                _buildFilterCategories(),
-                const SizedBox(height: 16),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Popular Coffees',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      backgroundColor: _bgPage,
+      body: SafeArea(
+        bottom: false,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // 1. Unpinned Header (Title Scrolls Away)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
+                child: Text(
+                  'Menu',
+                  style: TextStyle(
+                    fontFamily: 'Serif',
+                    fontWeight: FontWeight.bold,
+                    color: _textPrimary,
+                    fontSize: 32, // Large Title
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: GridView.builder(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 20.0),
+
+            // 2. Sticky Search & Tabs (Pins to Top)
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _StickySearchDelegate(
+                minHeight:
+                    110, // Height for Search (50) + Gap (10) + Tabs (30) + Padding
+                maxHeight: 110,
+                child: Container(
+                  color: _bgPage, // Opaque background to hide scrolling content
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Column(
+                    children: [
+                      // Search Bar
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Container(
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.grey.withOpacity(0.2),
+                            ),
+                          ),
+                          child: TextField(
+                            style: TextStyle(color: _textPrimary, fontSize: 14),
+                            cursorColor: _goldAccent,
+                            decoration: InputDecoration(
+                              hintText: 'Search...',
+                              hintStyle: TextStyle(
+                                color: _textSecondary.withOpacity(0.5),
+                                fontSize: 14,
+                              ),
+                              prefixIcon: Icon(
+                                Icons.search_rounded,
+                                color: _textSecondary.withOpacity(0.7),
+                                size: 20,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      // Tabs
+                      SizedBox(height: 32, child: _buildMinimalTabs()),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // 3. Product Grid
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(24, 10, 24, 100),
+              sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 0.65,
+                  mainAxisSpacing: 24,
+                  childAspectRatio: 0.70, // Slightly taller to prevent overflow
                 ),
-                itemCount: menuProducts.length,
-                itemBuilder: (context, index) {
-                  final product = menuProducts[index];
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 4, bottom: 4),
-                        child: Text(
-                          product.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Expanded(child: MenuProductCard(product: product)),
-                    ],
-                  );
-                },
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  return MenuProductCard(product: _filteredProducts[index]);
+                }, childCount: _filteredProducts.length),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: const TextField(
-        decoration: InputDecoration(
-          hintText: 'Search for your favorite coffee...',
-          prefixIcon: Icon(Icons.search, color: Colors.grey),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 12),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildFilterCategories() {
-    return SizedBox(
-      height: 40,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: filterCategories.length,
-        itemBuilder: (context, index) {
-          final category = filterCategories[index];
-          return Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: category['isSelected']
-                    ? Colors.brown
-                    : Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: category['isSelected']
-                      ? Colors.brown
-                      : Colors.grey.shade300,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    category['icon'] as IconData,
-                    size: 16,
-                    color: category['isSelected']
-                        ? Colors.white
-                        : Colors.grey.shade700,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    category['name'] as String,
-                    style: TextStyle(
-                      color: category['isSelected']
-                          ? Colors.white
-                          : Colors.grey.shade700,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+  Widget _buildMinimalTabs() {
+    final List<String> categories = ['All', 'Coffee', 'Non-Coffee', 'Food'];
+
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      itemCount: categories.length,
+      separatorBuilder: (context, index) => const SizedBox(width: 24),
+      itemBuilder: (context, index) {
+        final category = categories[index];
+        final isSelected = _selectedCategory == category;
+
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              _selectedCategory = category;
+            });
+          },
+          child: Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              border: isSelected
+                  ? Border(bottom: BorderSide(color: _textPrimary, width: 2))
+                  : null,
+            ),
+            child: Text(
+              category,
+              style: TextStyle(
+                color: isSelected
+                    ? _textPrimary
+                    : _textSecondary.withOpacity(0.7),
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontSize: 14,
+                fontFamily: isSelected ? 'Serif' : null,
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
+  }
+}
+
+// Delegate for Sticky Search + Tabs
+class _StickySearchDelegate extends SliverPersistentHeaderDelegate {
+  final double minHeight;
+  final double maxHeight;
+  final Widget child;
+
+  _StickySearchDelegate({
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
+  });
+
+  @override
+  double get minExtent => minHeight;
+
+  @override
+  double get maxExtent => maxHeight;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return SizedBox.expand(child: child);
+  }
+
+  @override
+  bool shouldRebuild(_StickySearchDelegate oldDelegate) {
+    return maxHeight != oldDelegate.maxHeight ||
+        minHeight != oldDelegate.minHeight ||
+        child != oldDelegate.child;
   }
 }
