@@ -1,0 +1,51 @@
+Analyzing DPPB...                                               
+
+  error - Target of URI doesn't exist: '../models/product.dart' - lib\features\cart\data\datasources\cart_data.dart:1:8 - uri_does_not_exist
+  error - The name 'Product' isn't a class - lib\features\cart\data\datasources\cart_data.dart:7:11 - creation_with_non_type
+  error - The name 'Product' isn't a class - lib\features\cart\data\datasources\cart_data.dart:16:11 - creation_with_non_type
+  error - The name 'Product' isn't a class - lib\features\cart\data\datasources\cart_data.dart:25:11 - creation_with_non_type
+  error - Target of URI doesn't exist: 'product.dart' - lib\features\cart\data\models\cart_item.dart:1:8 - uri_does_not_exist
+  error - Undefined class 'Product' - lib\features\cart\data\models\cart_item.dart:5:9 - undefined_class
+   info - The import of '../data/models/cart_item.dart' is unnecessary because all of the used elements are also provided by the import of '../../../../core/models/data.dart' - lib\features\cart\pages\cart_page.dart:3:8 - unnecessary_import
+  error - Target of URI doesn't exist: '../../utils/formatter.dart' - lib\features\cart\pages\checkout_page.dart:3:8 - uri_does_not_exist
+  error - The method 'formatRupiah' isn't defined for the type '_CheckoutPageState' - lib\features\cart\pages\checkout_page.dart:490:17 - undefined_method
+  error - The method 'formatRupiah' isn't defined for the type '_CheckoutPageState' - lib\features\cart\pages\checkout_page.dart:541:13 - undefined_method
+  error - The method 'formatRupiah' isn't defined for the type '_CheckoutPageState' - lib\features\cart\pages\checkout_page.dart:598:26 - undefined_method
+  error - Target of URI doesn't exist: '../../utils/formatter.dart' - lib\features\cart\pages\payment_success_page.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../main_wrapper.dart' - lib\features\cart\pages\payment_success_page.dart:3:8 - uri_does_not_exist
+  error - The method 'formatRupiah' isn't defined for the type 'PaymentSuccessPage' - lib\features\cart\pages\payment_success_page.dart:91:23 - undefined_method
+  error - The name 'MainWrapper' isn't a class - lib\features\cart\pages\payment_success_page.dart:137:35 - creation_with_non_type
+  error - Target of URI doesn't exist: '../../models/comment.dart' - lib\features\product\pages\comments_page.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../data/comment_data.dart' - lib\features\product\pages\comments_page.dart:3:8 - uri_does_not_exist
+  error - Undefined name 'mockComments' - lib\features\product\pages\comments_page.dart:13:28 - undefined_identifier
+  error - Undefined name 'mockComments' - lib\features\product\pages\comments_page.dart:15:11 - undefined_identifier
+  error - Undefined name 'mockComments' - lib\features\product\pages\comments_page.dart:16:15 - undefined_identifier
+  error - Undefined name 'mockComments' - lib\features\product\pages\comments_page.dart:27:46 - undefined_identifier
+  error - Undefined name 'mockComments' - lib\features\product\pages\comments_page.dart:31:26 - undefined_identifier
+  error - Undefined name 'mockComments' - lib\features\product\pages\comments_page.dart:33:33 - undefined_identifier
+  error - Undefined class 'Comment' - lib\features\product\pages\comments_page.dart:111:28 - undefined_class
+   info - Don't invoke 'print' in production code - lib\features\product\pages\product_detail_page.dart:45:19 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\product\pages\product_detail_page.dart:46:19 - avoid_print
+  error - Target of URI doesn't exist: '../../models/data.dart' - lib\features\product\widgets\menu_product_card.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../pages/menu/product_detail_page.dart' - lib\features\product\widgets\menu_product_card.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../utils/formatter.dart' - lib\features\product\widgets\menu_product_card.dart:4:8 - uri_does_not_exist
+  error - Undefined class 'Product' - lib\features\product\widgets\menu_product_card.dart:7:9 - undefined_class
+  error - The method 'ProductDetailPage' isn't defined for the type 'MenuProductCard' - lib\features\product\widgets\menu_product_card.dart:27:35 - undefined_method
+  error - The method 'formatRupiah' isn't defined for the type 'MenuProductCard' - lib\features\product\widgets\menu_product_card.dart:153:27 - undefined_method
+  error - Target of URI doesn't exist: '../../models/data.dart' - lib\features\product\widgets\product_card.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../pages/menu/product_detail_page.dart' - lib\features\product\widgets\product_card.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../utils/formatter.dart' - lib\features\product\widgets\product_card.dart:4:8 - uri_does_not_exist
+  error - Undefined class 'Product' - lib\features\product\widgets\product_card.dart:7:9 - undefined_class
+  error - The method 'ProductDetailPage' isn't defined for the type 'ProductCard' - lib\features\product\widgets\product_card.dart:18:35 - undefined_method
+  error - The method 'formatRupiah' isn't defined for the type 'ProductCard' - lib\features\product\widgets\product_card.dart:70:21 - undefined_method
+  error - Target of URI doesn't exist: '../../data/user_profile_data.dart' - lib\features\profile\pages\edit_profile_page.dart:2:8 - uri_does_not_exist
+  error - Undefined name 'mockUserProfile' - lib\features\profile\pages\edit_profile_page.dart:20:50 - undefined_identifier
+  error - Undefined name 'mockUserProfile' - lib\features\profile\pages\edit_profile_page.dart:21:51 - undefined_identifier
+  error - Undefined name 'mockUserProfile' - lib\features\profile\pages\edit_profile_page.dart:22:51 - undefined_identifier
+  error - Undefined name 'mockUserProfile' - lib\features\profile\pages\edit_profile_page.dart:23:53 - undefined_identifier
+  error - Undefined name 'mockUserProfile' - lib\features\profile\pages\edit_profile_page.dart:94:15 - undefined_identifier
+   info - Dangling library doc comment - lib\features\reservation\data\datasources\reservation_data.dart:1:1 - dangling_library_doc_comments
+   info - Don't invoke 'print' in production code - lib\features\reservation\data\services\reservation_service.dart:23:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\reservation\data\services\reservation_service.dart:24:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\features\reservation\data\services\reservation_service.dart:28:7 - avoid_print
+
