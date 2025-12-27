@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'features/home/pages/main_wrapper.dart';
 import 'features/auth/pages/login_page.dart';
+import 'core/services/user_session.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi UserSession sebelum app berjalan
+  await UserSession.instance.init();
+
   runApp(const MyApp());
 }
 
@@ -18,7 +24,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),
         useMaterial3: true,
       ),
-      initialRoute: '/', // Mulai dari LoginPage
+      // Cek apakah user sudah login, jika sudah langsung ke home
+      initialRoute: UserSession.instance.isLoggedIn ? '/home' : '/',
       routes: {
         '/': (context) => const LoginPage(),
         '/home': (context) => const MainWrapper(),

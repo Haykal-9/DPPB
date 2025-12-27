@@ -1,228 +1,276 @@
 import 'package:flutter/material.dart';
-import '../../auth/pages/login_page.dart';
-import '../../order/pages/order_history_page.dart';
-import '../../order/pages/reservation_history_page.dart';
+import '../../../core/services/user_session.dart';
+import '../../auth/data/services/auth_service.dart';
+import 'edit_profile_page.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
-  // Theme Colors
-  final Color _bgPage = const Color(0xFFF9F5F0);
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  // Light Luxury Theme Constants
   final Color _goldPrimary = const Color(0xFFD4AF37);
-  final Color _textPrimary = const Color(0xFF2C2219);
+  final Color _bgPage = const Color(0xFFF9F5F0);
+  final Color _textPrimary = const Color(0xFF4A3B32);
   final Color _textSecondary = const Color(0xFF8D7B68);
+
+  final AuthService _authService = AuthService();
+
+  @override
+  void initState() {
+    super.initState();
+    // Refresh user data on page load
+    _refreshUserData();
+  }
+
+  Future<void> _refreshUserData() async {
+    await _authService.fetchCurrentUser();
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _handleLogout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi Logout'),
+        content: const Text('Apakah Anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Logout', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _authService.logout();
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final user = UserSession.instance.currentUser;
+
     return Scaffold(
       backgroundColor: _bgPage,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: _bgPage,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          'My Profile',
-          style: TextStyle(
-            fontFamily: 'Serif',
-            fontWeight: FontWeight.bold,
-            color: _textPrimary,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-        child: Column(
-          children: [
-            _buildProfileHeader(),
-
-            const SizedBox(height: 32),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Account Settings',
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              const SizedBox(height: 16),
+              // Title
+              Text(
+                'My Profile',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  fontFamily: 'Serif',
                   color: _textPrimary,
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            _buildSettingTiles(context),
-            const SizedBox(height: 40),
-            _buildLogoutButton(context),
-            const SizedBox(height: 40), // Bottom padding
-          ],
-        ),
-      ),
-    );
-  }
+              const SizedBox(height: 24),
 
-  Widget _buildProfileHeader() {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: _goldPrimary, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: _goldPrimary.withValues(alpha: 0.2),
-                blurRadius: 15,
-                spreadRadius: 2,
+              // Avatar
+              Container(
+                height: 100,
+                width: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: _goldPrimary, width: 2),
+                  color: Colors.white,
+                ),
+                child:
+                    user?.profilePicture != null &&
+                        user!.profilePicture!.isNotEmpty
+                    ? ClipOval(
+                        child: Image.network(
+                          'http://10.0.2.2:8000/uploads/profile/${user.profilePicture}',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              _buildInitials(user.nama),
+                        ),
+                      )
+                    : _buildInitials(user?.nama ?? 'U'),
+              ),
+              const SizedBox(height: 16),
+
+              // Name
+              Text(
+                user?.nama ?? 'User',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: _textPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+
+              // Email
+              Text(
+                user?.email ?? 'email@example.com',
+                style: TextStyle(fontSize: 14, color: _textSecondary),
+              ),
+              const SizedBox(height: 32),
+
+              // Account Settings Section
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Account Settings',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: _textPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // My Orders
+              _buildMenuItem(
+                icon: Icons.shopping_bag_outlined,
+                title: 'My Orders',
+                subtitle: 'Track active and past orders',
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Feature coming soon')),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+
+              // Reservations
+              _buildMenuItem(
+                icon: Icons.event_seat_outlined,
+                title: 'Reservations',
+                subtitle: 'Manage your table bookings',
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Feature coming soon')),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+
+              // Edit Profile
+              _buildMenuItem(
+                icon: Icons.edit_outlined,
+                title: 'Edit Profile',
+                subtitle: 'Update your personal information',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EditProfilePage(),
+                    ),
+                  ).then((_) => _refreshUserData());
+                },
+              ),
+              const SizedBox(height: 32),
+
+              // Logout Button
+              TextButton.icon(
+                onPressed: _handleLogout,
+                icon: Icon(Icons.logout, color: Colors.red.shade400),
+                label: Text(
+                  'Log Out',
+                  style: TextStyle(
+                    color: Colors.red.shade400,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ],
           ),
-          child: CircleAvatar(
-            radius: 50,
-            backgroundColor: Colors.grey.shade200,
-            backgroundImage: const AssetImage(
-              'assets/logo/logo.png',
-            ), // Placeholder or User Image
-            // If asset not found, it will just show bg color.
-            // Better to handle gracefully or use text fallback if desired,
-            // but for "Profile" usually an image is expected.
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'Salman Seftaesa Lazuardy',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Serif',
-            color: _textPrimary,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'salman.seftaesa@tapalkudacoffee.com',
-          style: TextStyle(color: _textSecondary, fontSize: 14),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingTiles(BuildContext context) {
-    return Column(
-      children: [
-        _buildSettingTile(
-          context,
-          'My Orders',
-          'Track active and past orders',
-          Icons.shopping_bag_outlined,
-          () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (c) => const OrderHistoryPage()),
-          ),
-        ),
-        const SizedBox(height: 16),
-        _buildSettingTile(
-          context,
-          'Reservations',
-          'Manage your table bookings',
-          Icons.calendar_today_outlined,
-          () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (c) => const ReservationHistoryPage()),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingTile(
-    BuildContext context,
-    String title,
-    String subtitle,
-    IconData icon,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: _bgPage,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: _textSecondary),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: _textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: _textSecondary.withValues(alpha: 0.8),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: _textSecondary.withValues(alpha: 0.5),
-            ),
-          ],
         ),
       ),
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
-    return TextButton.icon(
-      onPressed: () {
-        // Clear session data if any (e.g., SharedPreferences) here
-
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-          (route) => false,
-        );
-      },
-      icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
-      label: const Text(
-        'Log Out',
+  Widget _buildInitials(String name) {
+    final initials = name.isNotEmpty
+        ? name
+              .split(' ')
+              .map((e) => e.isNotEmpty ? e[0] : '')
+              .take(2)
+              .join()
+              .toUpperCase()
+        : 'U';
+    return Center(
+      child: Text(
+        initials,
         style: TextStyle(
-          color: Colors.redAccent,
+          fontSize: 32,
           fontWeight: FontWeight.bold,
-          fontSize: 16,
+          color: _goldPrimary,
         ),
       ),
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      elevation: 1,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: _goldPrimary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: _textSecondary),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: _textPrimary,
+                        fontSize: 15,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: TextStyle(color: _textSecondary, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: _textSecondary),
+            ],
+          ),
+        ),
       ),
     );
   }

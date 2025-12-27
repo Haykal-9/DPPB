@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../data/services/auth_service.dart';
+import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,6 +14,37 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+
+  final AuthService _authService = AuthService();
+
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    final success = await _authService.login(
+      _usernameController.text.trim(),
+      _passwordController.text,
+    );
+
+    setState(() => _isLoading = false);
+
+    if (success) {
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login gagal. Periksa username dan password Anda.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   // Light Luxury Theme Constants
   final Color _goldPrimary = const Color(0xFFD4AF37);
@@ -122,13 +155,13 @@ class _LoginPageState extends State<LoginPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                // Username
+                                // Username atau Email
                                 _buildLightField(
                                   controller: _usernameController,
-                                  label: 'Username',
+                                  label: 'Username atau Email',
                                   icon: Icons.person_outline_rounded,
                                   validator: (val) => (val?.isEmpty ?? true)
-                                      ? 'Required'
+                                      ? 'Username atau email wajib diisi'
                                       : null,
                                 ),
                                 const SizedBox(height: 16), // Compact spacing
@@ -168,14 +201,7 @@ class _LoginPageState extends State<LoginPage> {
                                 const SizedBox(height: 24), // Compact spacing
                                 // Login Button
                                 ElevatedButton(
-                                  onPressed: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      Navigator.pushReplacementNamed(
-                                        context,
-                                        '/home',
-                                      );
-                                    }
-                                  },
+                                  onPressed: _isLoading ? null : _handleLogin,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: _goldPrimary,
                                     foregroundColor: Colors.white,
@@ -190,14 +216,23 @@ class _LoginPageState extends State<LoginPage> {
                                       alpha: 0.4,
                                     ),
                                   ),
-                                  child: const Text(
-                                    'SIGN IN',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2,
-                                    ),
-                                  ),
+                                  child: _isLoading
+                                      ? SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Text(
+                                          'SIGN IN',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 1.2,
+                                          ),
+                                        ),
                                 ),
 
                                 const SizedBox(height: 24), // Compact spacing
@@ -214,7 +249,15 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                                     ),
                                     GestureDetector(
-                                      onTap: () {},
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const RegisterPage(),
+                                          ),
+                                        );
+                                      },
                                       child: Text(
                                         'Create an account',
                                         style: TextStyle(
@@ -260,10 +303,12 @@ class _LoginPageState extends State<LoginPage> {
     bool? isObscure,
     VoidCallback? onToggle,
     String? Function(String?)? validator,
+    TextInputType? keyboardType,
   }) {
     return TextFormField(
       controller: controller,
       obscureText: isObscure ?? false,
+      keyboardType: keyboardType,
       style: TextStyle(color: _textPrimary, fontWeight: FontWeight.w500),
       validator: validator,
       decoration: InputDecoration(
