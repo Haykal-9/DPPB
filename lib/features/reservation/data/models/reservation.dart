@@ -22,7 +22,7 @@ class Reservation {
       'tanggal_reservasi': date,
       'jam_reservasi': time,
       'jumlah_orang': pax.toString(),
-      'notes': notes,
+      'message': notes,
     };
   }
 }
