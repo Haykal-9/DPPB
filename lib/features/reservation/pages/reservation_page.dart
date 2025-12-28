@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/models/reservation.dart';
 import '../data/services/reservation_service.dart';
+import '../../../core/services/user_session.dart';
 
 class ReservationPage extends StatefulWidget {
   const ReservationPage({super.key});
@@ -26,6 +27,22 @@ class _ReservationPageState extends State<ReservationPage> {
 
   final ReservationService _reservationService = ReservationService();
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fillUserData();
+  }
+
+  void _fillUserData() {
+    final user = UserSession.instance.currentUser;
+    if (user != null) {
+      _nameController.text = user.nama;
+      if (user.noTelp != null) {
+        _phoneController.text = user.noTelp!;
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -113,7 +130,9 @@ class _ReservationPageState extends State<ReservationPage> {
         notes: _notesController.text,
       );
 
-      final success = await _reservationService.createReservation(reservation);
+      final errorMessage = await _reservationService.createReservation(
+        reservation,
+      );
 
       setState(() {
         _isLoading = false;
@@ -121,16 +140,14 @@ class _ReservationPageState extends State<ReservationPage> {
 
       if (!mounted) return;
 
-      if (success) {
+      if (errorMessage == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Reservation submitted successfully!')),
         );
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to submit reservation. Please try again.'),
-          ),
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
         );
       }
     }

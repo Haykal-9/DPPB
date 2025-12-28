@@ -17,11 +17,11 @@ class Reservation {
 
   Map<String, dynamic> toJson() {
     return {
-      'name': name,
-      'phone_number': phone, // Matches typical API naming
-      'reservation_date': date,
-      'reservation_time': time,
-      'pax': pax.toString(),
+      'nama': name,
+      'no_telp': phone,
+      'tanggal_reservasi': date,
+      'jam_reservasi': time,
+      'jumlah_orang': pax.toString(),
       'notes': notes,
     };
   }
