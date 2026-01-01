@@ -6,6 +6,33 @@ import '../../../../core/services/user_session.dart';
 import '../models/reservation.dart';
 
 class ReservationService {
+  Future<List<Reservation>> getReservations() async {
+    final url = Uri.parse('${ApiConfig.baseUrl}reservations');
+    final token = UserSession.instance.token;
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> body = jsonDecode(response.body);
+        final List<dynamic> data = body['data'];
+        return data.map((json) => Reservation.fromJson(json)).toList();
+      } else {
+        debugPrint('Failed to load reservations: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      debugPrint('Error getting reservations: $e');
+      return [];
+    }
+  }
+
   Future<String?> createReservation(Reservation reservation) async {
     final url = Uri.parse('${ApiConfig.baseUrl}reservations');
     final token = UserSession.instance.token;

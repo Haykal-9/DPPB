@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../data/services/auth_service.dart';
@@ -30,18 +30,17 @@ class _RegisterPageState extends State<RegisterPage> {
   int? _selectedGenderId;
 
   // Profile picture
-  File? _profileImage;
+  XFile? _profileImage;
+  Uint8List? _profileBytes;
   final ImagePicker _picker = ImagePicker();
 
   final AuthService _authService = AuthService();
-
   // Light Luxury Theme Constants (Mobile Style)
   final Color _goldPrimary = const Color(0xFFD4AF37);
   final Color _bgPage = const Color(0xFFF9F5F0);
   final Color _bgCard = const Color(0xFFFFFFFF);
   final Color _textPrimary = const Color(0xFF4A3B32);
   final Color _textSecondary = const Color(0xFF8D7B68);
-
   @override
   void initState() {
     super.initState();
@@ -61,7 +60,11 @@ class _RegisterPageState extends State<RegisterPage> {
       imageQuality: 80,
     );
     if (image != null) {
-      setState(() => _profileImage = File(image.path));
+      final bytes = await image.readAsBytes();
+      setState(() {
+        _profileImage = image;
+        _profileBytes = bytes;
+      });
     }
   }
 
@@ -386,13 +389,13 @@ class _RegisterPageState extends State<RegisterPage> {
                                         style: BorderStyle.solid,
                                       ),
                                     ),
-                                    child: _profileImage != null
+                                    child: _profileBytes != null
                                         ? ClipRRect(
                                             borderRadius: BorderRadius.circular(
                                               16,
                                             ),
-                                            child: Image.file(
-                                              _profileImage!,
+                                            child: Image.memory(
+                                              _profileBytes!,
                                               fit: BoxFit.cover,
                                               width: double.infinity,
                                             ),
