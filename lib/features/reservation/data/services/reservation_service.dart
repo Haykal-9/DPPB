@@ -77,4 +77,43 @@ class ReservationService {
       return 'Connection error: $e';
     }
   }
+
+  Future<String?> cancelReservation(int reservationId) async {
+    final url = Uri.parse(
+      '${ApiConfig.baseUrl}reservations/$reservationId/cancel',
+    );
+    final token = UserSession.instance.token;
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body);
+        if (body['success'] == true) {
+          return null; // Success (no error)
+        } else {
+          return body['message'] ?? 'Cancellation failed';
+        }
+      } else {
+        debugPrint('Failed to cancel reservation: ${response.statusCode}');
+        debugPrint('Response body: ${response.body}');
+        try {
+          final body = jsonDecode(response.body);
+          return body['message'] ?? 'Failed with status ${response.statusCode}';
+        } catch (_) {
+          return 'Failed with status ${response.statusCode}';
+        }
+      }
+    } catch (e) {
+      debugPrint('Error canceling reservation: $e');
+      return 'Connection error: $e';
+    }
+  }
 }
