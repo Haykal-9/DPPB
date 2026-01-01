@@ -11,9 +11,9 @@ class ReservationPage extends StatefulWidget {
 }
 
 class _ReservationPageState extends State<ReservationPage> {
-  // Theme Colors (Light Luxury)
+  // Light Luxury Theme Colors
   final Color _bgPage = const Color(0xFFF9F5F0);
-  final Color _textPrimary = const Color(0xFF2C2219);
+  final Color _textPrimary = const Color(0xFF4A3B32);
   final Color _textSecondary = const Color(0xFF8D7B68);
   final Color _goldPrimary = const Color(0xFFD4AF37);
 
@@ -60,13 +60,14 @@ class _ReservationPageState extends State<ReservationPage> {
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 30)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: _textPrimary,
-              onPrimary: _goldPrimary,
+              primary: _goldPrimary,
+              onPrimary: Colors.white,
+              surface: Colors.white,
               onSurface: _textPrimary,
             ),
           ),
@@ -74,10 +75,11 @@ class _ReservationPageState extends State<ReservationPage> {
         );
       },
     );
+
     if (picked != null) {
       setState(() {
         _dateController.text =
-            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+            '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
       });
     }
   }
@@ -90,65 +92,93 @@ class _ReservationPageState extends State<ReservationPage> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: _textPrimary, // Header background color
-              onPrimary: Colors.white, // Header text color
-              onSurface: _textPrimary, // Body text color
-            ),
-            timePickerTheme: TimePickerThemeData(
-              dialHandColor: _goldPrimary,
-              dialBackgroundColor: _bgPage,
-              hourMinuteTextColor: _textPrimary,
-              hourMinuteColor: _bgPage,
-              dayPeriodTextColor: _goldPrimary,
-              dayPeriodColor: _textPrimary.withValues(alpha: 0.1),
+              primary: _goldPrimary,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: _textPrimary,
             ),
           ),
           child: child!,
         );
       },
     );
+
     if (picked != null) {
       setState(() {
         _timeController.text =
-            "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
+            '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
       });
     }
   }
 
   Future<void> _submitReservation() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
+    setState(() => _isLoading = true);
+
+    try {
       final reservation = Reservation(
         name: _nameController.text,
         phone: _phoneController.text,
         date: _dateController.text,
         time: _timeController.text,
         pax: int.parse(_paxController.text),
-        notes: _notesController.text,
+        notes: _notesController.text.isEmpty ? null : _notesController.text,
       );
 
-      final errorMessage = await _reservationService.createReservation(
-        reservation,
-      );
-
-      setState(() {
-        _isLoading = false;
-      });
+      final error = await _reservationService.createReservation(reservation);
 
       if (!mounted) return;
 
-      if (errorMessage == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Reservation submitted successfully!')),
+      if (error == null) {
+        // Success
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.green, size: 28),
+                const SizedBox(width: 12),
+                const Text('Success!'),
+              ],
+            ),
+            content: const Text(
+              'Your reservation has been submitted successfully.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK', style: TextStyle(color: _goldPrimary)),
+              ),
+            ],
+          ),
         );
-        Navigator.pop(context);
+
+        // Clear form
+        _formKey.currentState!.reset();
+        _dateController.clear();
+        _timeController.clear();
+        _paxController.clear();
+        _notesController.clear();
+        _fillUserData();
       } else {
+        // Error
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(error),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -158,121 +188,238 @@ class _ReservationPageState extends State<ReservationPage> {
     return Scaffold(
       backgroundColor: _bgPage,
       appBar: AppBar(
-        backgroundColor: _bgPage,
+        backgroundColor: Colors.white,
         elevation: 0,
-        leading: BackButton(color: _textPrimary),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.arrow_back_ios, color: _textPrimary),
+        ),
         title: Text(
           'Make Reservation',
           style: TextStyle(
-            fontFamily: 'Serif',
+            fontSize: 22,
             fontWeight: FontWeight.bold,
             color: _textPrimary,
-            fontSize: 22,
+            letterSpacing: 0.5,
           ),
         ),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildTextField(
-                controller: _nameController,
-                label: 'Name',
-                icon: Icons.person_outline,
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter your name' : null,
+        padding: const EdgeInsets.all(20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: _textPrimary.withOpacity(0.08),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
               ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _phoneController,
-                label: 'Phone Number',
-                icon: Icons.phone_outlined,
-                keyboardType: TextInputType.phone,
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter your phone number' : null,
-              ),
-              const SizedBox(height: 16),
-              Row(
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: _buildReadOnlyField(
-                      controller: _dateController,
-                      label: 'Date',
-                      icon: Icons.calendar_today_outlined,
-                      onTap: () => _selectDate(context),
-                      validator: (value) =>
-                          value!.isEmpty ? 'Select date' : null,
-                    ),
+                  // Section Header
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: _goldPrimary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.person_outline,
+                          color: _goldPrimary,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Personal Information',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: _textPrimary,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildReadOnlyField(
-                      controller: _timeController,
-                      label: 'Time',
-                      icon: Icons.access_time_outlined,
-                      onTap: () => _selectTime(context),
-                      validator: (value) =>
-                          value!.isEmpty ? 'Select time' : null,
+                  const SizedBox(height: 20),
+
+                  // Name Field
+                  _buildTextField(
+                    controller: _nameController,
+                    label: 'Full Name',
+                    icon: Icons.person,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Phone Field
+                  _buildTextField(
+                    controller: _phoneController,
+                    label: 'Phone Number',
+                    icon: Icons.phone,
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your phone number';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Reservation Details Header
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: _goldPrimary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.event_note,
+                          color: _goldPrimary,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Reservation Details',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: _textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Date & Time Row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildReadOnlyField(
+                          controller: _dateController,
+                          label: 'Date',
+                          icon: Icons.calendar_today,
+                          onTap: () => _selectDate(context),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Select date';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildReadOnlyField(
+                          controller: _timeController,
+                          label: 'Time',
+                          icon: Icons.access_time,
+                          onTap: () => _selectTime(context),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Select time';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Number of Guests
+                  _buildTextField(
+                    controller: _paxController,
+                    label: 'Number of Guests',
+                    icon: Icons.people,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Enter number of guests';
+                      }
+                      if (int.tryParse(value) == null) {
+                        return 'Please enter a valid number';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Special Notes
+                  _buildTextField(
+                    controller: _notesController,
+                    label: 'Special Notes (Optional)',
+                    icon: Icons.note,
+                    maxLines: 3,
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Submit Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _submitReservation,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _goldPrimary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 4,
+                        shadowColor: _goldPrimary.withOpacity(0.4),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.check_circle_outline, size: 22),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Confirm Reservation',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _paxController,
-                label: 'Number of People',
-                icon: Icons.people_outline,
-                keyboardType: TextInputType.number,
-                validator: (value) =>
-                    value!.isEmpty ? 'Enter number of people' : null,
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _notesController,
-                label: 'Special Notes (Optional)',
-                icon: Icons.note_outlined,
-                maxLines: 3,
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _submitReservation,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _textPrimary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 5,
-                  shadowColor: _textPrimary.withValues(alpha: 0.3),
-                ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Reserve Table',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            color: _goldPrimary,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -287,40 +434,43 @@ class _ReservationPageState extends State<ReservationPage> {
     int maxLines = 1,
     String? Function(String?)? validator,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: _textPrimary.withValues(alpha: 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        maxLines: maxLines,
-        style: TextStyle(color: _textPrimary, fontWeight: FontWeight.w500),
-        validator: validator,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(color: _textSecondary),
-          prefixIcon: Icon(icon, color: _goldPrimary),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          filled: true,
-          fillColor: Colors.transparent,
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 16,
-            horizontal: 20,
-          ),
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      style: TextStyle(color: _textPrimary, fontSize: 15),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: _textSecondary),
+        prefixIcon: Icon(icon, color: _goldPrimary, size: 22),
+        filled: true,
+        fillColor: _bgPage,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: _bgPage, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: _goldPrimary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Colors.red, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Colors.red, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
         ),
       ),
+      validator: validator,
     );
   }
 
@@ -331,43 +481,44 @@ class _ReservationPageState extends State<ReservationPage> {
     required VoidCallback onTap,
     String? Function(String?)? validator,
   }) {
-    return GestureDetector(
+    return TextFormField(
+      controller: controller,
+      readOnly: true,
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
+      style: TextStyle(color: _textPrimary, fontSize: 15),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: _textSecondary),
+        prefixIcon: Icon(icon, color: _goldPrimary, size: 22),
+        suffixIcon: Icon(Icons.arrow_drop_down, color: _textSecondary),
+        filled: true,
+        fillColor: _bgPage,
+        border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: _textPrimary.withValues(alpha: 0.05),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
+          borderSide: BorderSide.none,
         ),
-        child: AbsorbPointer(
-          child: TextFormField(
-            controller: controller,
-            style: TextStyle(color: _textPrimary, fontWeight: FontWeight.w500),
-            validator: validator,
-            decoration: InputDecoration(
-              labelText: label,
-              labelStyle: TextStyle(color: _textSecondary),
-              prefixIcon: Icon(icon, color: _goldPrimary),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: Colors.transparent,
-              contentPadding: const EdgeInsets.symmetric(
-                vertical: 16,
-                horizontal: 20,
-              ),
-            ),
-          ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: _bgPage, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: _goldPrimary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Colors.red, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Colors.red, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
         ),
       ),
+      validator: validator,
     );
   }
 }

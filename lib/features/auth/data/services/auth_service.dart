@@ -1,7 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../core/config/api_config.dart';
 import '../../../../core/models/user.dart';
 import '../../../../core/services/user_session.dart';
@@ -95,7 +97,7 @@ class AuthService {
     String? noTelp,
     int? genderId,
     String? alamat,
-    File? profilePicture,
+    XFile? profilePicture,
   }) async {
     final url = Uri.parse('${ApiConfig.baseUrl}register');
 
@@ -122,12 +124,23 @@ class AuthService {
 
       // Add profile picture if exists
       if (profilePicture != null) {
-        request.files.add(
-          await http.MultipartFile.fromPath(
-            'profile_picture',
-            profilePicture.path,
-          ),
-        );
+        if (kIsWeb) {
+          final bytes = await profilePicture.readAsBytes();
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'profile_picture',
+              bytes,
+              filename: profilePicture.name,
+            ),
+          );
+        } else {
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'profile_picture',
+              profilePicture.path,
+            ),
+          );
+        }
       }
 
       final streamedResponse = await request.send();
@@ -203,12 +216,130 @@ class AuthService {
         // Update session dengan data terbaru
         await UserSession.instance.updateUser(user);
 
+        debugPrint('Fetched User Profile Picture: ${user.profilePicture}');
+
         return user;
       }
       return null;
     } catch (e) {
       debugPrint('Error fetching user: $e');
       return null;
+    }
+  }
+
+  Future<String?> updateProfile({
+    required String nama,
+    required String username, // Username harus dikirim
+    required String email, // Email harus dikirim
+    String? noTelp,
+    String? alamat,
+    XFile? profilePicture,
+  }) async {
+    final token = UserSession.instance.token;
+    if (token == null) return "Session expired";
+
+    final url = Uri.parse('${ApiConfig.baseUrl}profile');
+
+    try {
+      var request = http.MultipartRequest('POST', url);
+      request.headers['Accept'] = 'application/json';
+      request.headers['Authorization'] = 'Bearer $token';
+
+      // Method spoofing untuk Laravel
+      request.fields['_method'] = 'PUT';
+
+      request.fields['nama'] = nama;
+      request.fields['username'] = username;
+      request.fields['email'] = email;
+
+      if (noTelp != null) {
+        request.fields['no_telp'] = noTelp;
+      }
+      if (alamat != null) {
+        request.fields['alamat'] = alamat;
+      }
+
+      if (profilePicture != null) {
+        // Determine MIME type
+        final String extension = profilePicture.name
+            .split('.')
+            .last
+            .toLowerCase();
+        MediaType contentType;
+
+        switch (extension) {
+          case 'jpg':
+          case 'jpeg':
+            contentType = MediaType('image', 'jpeg');
+            break;
+          case 'png':
+            contentType = MediaType('image', 'png');
+            break;
+          case 'gif':
+            contentType = MediaType('image', 'gif');
+            break;
+          case 'webp':
+            contentType = MediaType('image', 'webp');
+            break;
+          default:
+            contentType = MediaType('image', 'jpeg'); // Default fallback
+        }
+
+        // Ensure filename has extension
+        String fileName = profilePicture.name;
+        if (!fileName.toLowerCase().endsWith('.$extension')) {
+          fileName = '${DateTime.now().millisecondsSinceEpoch}.$extension';
+        }
+
+        debugPrint('Uploading file: $fileName');
+        final bytes = await profilePicture.readAsBytes();
+        debugPrint('File size: ${bytes.lengthInBytes} bytes');
+        debugPrint('Detected MIME: $contentType');
+
+        if (kIsWeb) {
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'foto',
+              bytes,
+              filename: fileName,
+              contentType: contentType,
+            ),
+          );
+        } else {
+          final fileLength = await profilePicture.length();
+          debugPrint('File size (path): $fileLength bytes');
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'foto',
+              profilePicture.path,
+              filename: fileName,
+              contentType: contentType,
+            ),
+          );
+        }
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      debugPrint('Update Profile Status: ${response.statusCode}');
+      debugPrint('Update Profile Headers: ${response.headers}');
+      debugPrint('Update Profile Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        // Fetch ulang data user terbaru agar session sync
+        await fetchCurrentUser();
+        return null; // Success
+      } else {
+        // Log detailed error and return it
+        final error = jsonDecode(response.body);
+        final errorMessage = error['message'] ?? 'Failed to update profile';
+        debugPrint('Failed to update: $errorMessage');
+        return errorMessage;
+      }
+    } catch (e) {
+      debugPrint('Error update profile: $e');
+      return 'Connection error: $e';
     }
   }
 }

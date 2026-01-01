@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../core/services/user_session.dart';
+import '../../../core/config/api_config.dart';
 import '../../auth/data/services/auth_service.dart';
+import '../../reservation/pages/reservation_history_page.dart';
 import 'edit_profile_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -65,138 +67,320 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       backgroundColor: _bgPage,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              const SizedBox(height: 16),
-              // Title
-              Text(
-                'My Profile',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: _textPrimary,
-                ),
+      body: Stack(
+        children: [
+          // 1. Header Background
+          Container(
+            height: 280,
+            decoration: BoxDecoration(
+              color: _goldPrimary, // Solid gold color
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
               ),
-              const SizedBox(height: 24),
-
-              // Avatar
-              Container(
-                height: 100,
-                width: 100,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: _goldPrimary, width: 2),
-                  color: Colors.white,
-                ),
-                child:
-                    user?.profilePicture != null &&
-                        user!.profilePicture!.isNotEmpty
-                    ? ClipOval(
-                        child: Image.network(
-                          'http://10.0.2.2:8000/uploads/profile/${user.profilePicture}',
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              _buildInitials(user.nama),
-                        ),
-                      )
-                    : _buildInitials(user?.nama ?? 'U'),
-              ),
-              const SizedBox(height: 16),
-
-              // Name
-              Text(
-                user?.nama ?? 'User',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: _textPrimary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-
-              // Email
-              Text(
-                user?.email ?? 'email@example.com',
-                style: TextStyle(fontSize: 14, color: _textSecondary),
-              ),
-              const SizedBox(height: 32),
-
-              // Account Settings Section
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Account Settings',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: _textPrimary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // My Orders
-              _buildMenuItem(
-                icon: Icons.shopping_bag_outlined,
-                title: 'My Orders',
-                subtitle: 'Track active and past orders',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Feature coming soon')),
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-
-              // Reservations
-              _buildMenuItem(
-                icon: Icons.event_seat_outlined,
-                title: 'Reservations',
-                subtitle: 'Manage your table bookings',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Feature coming soon')),
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-
-              // Edit Profile
-              _buildMenuItem(
-                icon: Icons.edit_outlined,
-                title: 'Edit Profile',
-                subtitle: 'Update your personal information',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const EditProfilePage(),
-                    ),
-                  ).then((_) => _refreshUserData());
-                },
-              ),
-              const SizedBox(height: 32),
-
-              // Logout Button
-              TextButton.icon(
-                onPressed: _handleLogout,
-                icon: Icon(Icons.logout, color: Colors.red.shade400),
-                label: Text(
-                  'Log Out',
-                  style: TextStyle(
-                    color: Colors.red.shade400,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+
+          // 2. Main Content
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  // App Bar Title
+                  const Text(
+                    'My Profile',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Profile Info Card with Floating Avatar
+                  Stack(
+                    alignment: Alignment.topCenter,
+                    clipBehavior: Clip.none,
+                    children: [
+                      // White Card
+                      Container(
+                        margin: const EdgeInsets.only(top: 50),
+                        padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withValues(alpha: 0.1),
+                              spreadRadius: 5,
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            // Name
+                            Text(
+                              user?.nama ?? 'Guest User',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: _textPrimary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+
+                            // Email
+                            _buildInfoRow(
+                              Icons.email_outlined,
+                              user?.email ?? 'No email',
+                            ),
+
+                            // Phone
+                            if (user?.noTelp != null &&
+                                user!.noTelp!.isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              _buildInfoRow(Icons.phone_outlined, user.noTelp!),
+                            ],
+
+                            // Address
+                            if (user?.alamat != null &&
+                                user!.alamat!.isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              _buildInfoRow(
+                                Icons.location_on_outlined,
+                                user.alamat!,
+                                maxLines: 2,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+
+                      // Avatar Circle
+                      Positioned(
+                        top: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 4),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: SizedBox(
+                              width: 100,
+                              height: 100,
+                              child: Builder(
+                                builder: (context) {
+                                  // === DEBUG LOGGING START ===
+                                  debugPrint(
+                                    '=== PROFILE PAGE IMAGE DEBUG ===',
+                                  );
+                                  debugPrint(
+                                    'User profilePicture raw: ${user?.profilePicture}',
+                                  );
+                                  debugPrint(
+                                    'Is null? ${user?.profilePicture == null}',
+                                  );
+                                  debugPrint(
+                                    'Is empty? ${user?.profilePicture?.isEmpty}',
+                                  );
+                                  debugPrint(
+                                    'API imageBaseUrl: ${ApiConfig.imageBaseUrl}',
+                                  );
+
+                                  if (user?.profilePicture != null &&
+                                      user!.profilePicture!.isNotEmpty) {
+                                    final String imageUrl =
+                                        user!.profilePicture!.startsWith('http')
+                                        ? '${user!.profilePicture}?t=${DateTime.now().millisecondsSinceEpoch}'
+                                        : '${ApiConfig.imageBaseUrl}assets/images/profile/${user!.profilePicture}?t=${DateTime.now().millisecondsSinceEpoch}';
+                                    debugPrint('Constructed URL: $imageUrl');
+                                    debugPrint('=== END DEBUG ===');
+
+                                    return Image.network(
+                                      imageUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        debugPrint(
+                                          '❌ Image load ERROR for URL: $imageUrl',
+                                        );
+                                        debugPrint('❌ Error: $error');
+                                        debugPrint('❌ StackTrace: $stackTrace');
+                                        return Container(
+                                          color: Colors.white,
+                                          child: _buildInitials(
+                                            user?.nama ?? 'U',
+                                          ),
+                                        );
+                                      },
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                            if (loadingProgress == null) {
+                                              debugPrint(
+                                                '✅ Image loaded successfully!',
+                                              );
+                                              return child;
+                                            }
+                                            debugPrint(
+                                              '⏳ Loading image... ${loadingProgress.cumulativeBytesLoaded} / ${loadingProgress.expectedTotalBytes ?? "?"}',
+                                            );
+                                            return Container(
+                                              color: Colors.white,
+                                              child: const Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                    ),
+                                              ),
+                                            );
+                                          },
+                                    );
+                                  } else {
+                                    debugPrint(
+                                      '⚠️ No profile picture - showing initials',
+                                    );
+                                    debugPrint('=== END DEBUG ===');
+                                    return Container(
+                                      color: Colors.white,
+                                      child: _buildInitials(user?.nama ?? 'U'),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // Menu Section
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Account Settings',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: _textPrimary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Menu Items
+                  _buildModernMenuItem(
+                    icon: Icons.shopping_bag_outlined,
+                    title: 'My Orders',
+                    subtitle: 'Track active and past orders',
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Feature coming soon')),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildModernMenuItem(
+                    icon: Icons.event_seat_outlined,
+                    title: 'Reservations',
+                    subtitle: 'Manage your table bookings',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ReservationHistoryPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildModernMenuItem(
+                    icon: Icons.person_outline,
+                    title: 'Edit Profile',
+                    subtitle: 'Update your personal information',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EditProfilePage(),
+                        ),
+                      ).then((_) => _refreshUserData());
+                    },
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Logout
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: _handleLogout,
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide(color: Colors.red.shade200),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        backgroundColor: Colors.red.shade50,
+                      ),
+                      child: Text(
+                        'Log Out',
+                        style: TextStyle(
+                          color: Colors.red.shade700,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text, {int maxLines = 1}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: _textSecondary),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: _textSecondary,
+                fontSize: 14,
+                height: 1.2,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: maxLines,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -222,53 +406,73 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildMenuItem({
+  Widget _buildModernMenuItem({
     required IconData icon,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      elevation: 1,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: _goldPrimary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.05),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _bgPage,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: _goldPrimary, size: 24),
                 ),
-                child: Icon(icon, color: _textSecondary),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: _textPrimary,
-                        fontSize: 15,
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: _textPrimary,
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
-                    Text(
-                      subtitle,
-                      style: TextStyle(color: _textSecondary, fontSize: 12),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: _textSecondary.withValues(alpha: 0.8),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Icon(Icons.chevron_right, color: _textSecondary),
-            ],
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: _textSecondary.withValues(alpha: 0.5),
+                  size: 16,
+                ),
+              ],
+            ),
           ),
         ),
       ),
