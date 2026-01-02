@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/models/data.dart'; // Centralized data exports
 import '../widgets/menu_product_card.dart'; // Relative to pages/.. -> widgets/
+import '../../cart/pages/cart_page.dart';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
@@ -37,18 +38,46 @@ class _MenuPageState extends State<MenuPage> {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // 1. Unpinned Header (Title Scrolls Away)
+            // 1. Unpinned Header (Title Scrolls Away) with Cart Icon
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
-                child: Text(
-                  'Menu',
-                  style: TextStyle(
-                    fontFamily: 'Serif',
-                    fontWeight: FontWeight.bold,
-                    color: _textPrimary,
-                    fontSize: 32, // Large Title
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Menu',
+                      style: TextStyle(
+                        fontFamily: 'Serif',
+                        fontWeight: FontWeight.bold,
+                        color: _textPrimary,
+                        fontSize: 32, // Large Title
+                      ),
+                    ),
+                    // Cart Icon
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CartPage(),
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.shopping_bag_outlined,
+                        color: _textPrimary,
+                        size: 28,
+                      ),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.all(12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

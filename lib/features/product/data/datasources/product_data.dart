@@ -3,6 +3,7 @@ import '../models/product.dart';
 /// Menu Products (Data dari Database Tapal Kuda)
 final List<Product> menuProducts = [
   const Product(
+    1,
     'Kopi Tubruk Arabika',
     14000.0,
     'assets/images/kopi/KOPI TUBRUK ARABIKA.jpg',
@@ -11,6 +12,7 @@ final List<Product> menuProducts = [
     category: 'Coffee',
   ),
   const Product(
+    2,
     'Cappucino',
     22000.0,
     'assets/images/kopi/CAPPUCINO.jpg',
@@ -19,6 +21,7 @@ final List<Product> menuProducts = [
     category: 'Coffee',
   ),
   const Product(
+    3,
     'ES Kopi Susu',
     22000.0,
     'assets/images/kopi/ES KOPI SUSU.jpg',
@@ -27,6 +30,7 @@ final List<Product> menuProducts = [
     category: 'Coffee',
   ),
   const Product(
+    4,
     'Espresso',
     14000.0,
     'assets/images/kopi/ESPRESSO.jpg',
@@ -35,6 +39,7 @@ final List<Product> menuProducts = [
     category: 'Coffee',
   ),
   const Product(
+    5,
     'Espresso Double',
     17000.0,
     'assets/images/kopi/ESPRESSO1.jpg',
@@ -43,6 +48,7 @@ final List<Product> menuProducts = [
     category: 'Coffee',
   ),
   const Product(
+    6,
     'Japanase Flavour',
     21000.0,
     'assets/images/kopi/JAPAN.jpg',
@@ -51,6 +57,7 @@ final List<Product> menuProducts = [
     category: 'Non-Coffee',
   ),
   const Product(
+    7,
     'Latte',
     25000.0,
     'assets/images/kopi/Latte.jpg',
@@ -59,6 +66,7 @@ final List<Product> menuProducts = [
     category: 'Coffee',
   ),
   const Product(
+    8,
     'Sukomon',
     21000.0,
     'assets/images/kopi/SUKOMON.jpg',
@@ -67,6 +75,7 @@ final List<Product> menuProducts = [
     category: 'Non-Coffee',
   ),
   const Product(
+    9,
     'V60',
     19000.0,
     'assets/images/kopi/V60.jpg',
@@ -75,6 +84,7 @@ final List<Product> menuProducts = [
     category: 'Coffee',
   ),
   const Product(
+    10,
     'Vietname Drip',
     19000.0,
     'assets/images/kopi/VIETNAM.jpg',

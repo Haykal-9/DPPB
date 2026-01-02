@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../core/utils/formatter.dart';
+import '../../../../core/models/data.dart';
 import 'payment_success_page.dart';
+import '../data/services/cart_service.dart';
+import '../data/datasources/cart_data.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -21,9 +24,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String selectedDiningMode = 'Pickup'; // 'Pickup' or 'Dine In'
 
   final TextEditingController _tableController = TextEditingController();
+  final CartService _cartService = CartService();
+  bool _isSubmitting = false;
 
-  // Constants
-  final double totalAmount = 86000.0;
+  // Calculate total from cart
+  double get totalAmount {
+    return mockCartItems.fold(0, (sum, item) => sum + item.total);
+  }
 
   @override
   void dispose() {
@@ -550,6 +557,93 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
+  Future<void> _handleSubmitOrder() async {
+    // Validate table number for Dine In
+    if (selectedDiningMode == 'Dine In' &&
+        _tableController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please enter table number'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      // Submit order to backend
+      final result = await _cartService.submitOrder(
+        items: mockCartItems,
+        totalAmount: totalAmount,
+        paymentMethod: selectedPaymentMethod,
+        diningMode: selectedDiningMode,
+        tableNumber: selectedDiningMode == 'Dine In'
+            ? _tableController.text.trim()
+            : null,
+      );
+
+      if (!mounted) return;
+
+      if (result != null) {
+        // Success - Save order data before clearing cart
+        final List<CartItem> orderItems = List<CartItem>.from(mockCartItems);
+        final orderTotal = totalAmount;
+        final orderPayment = selectedPaymentMethod;
+        final orderMode = selectedDiningMode;
+        final orderTable = selectedDiningMode == 'Dine In'
+            ? _tableController.text.trim()
+            : null;
+
+        // Clear cart
+        mockCartItems.clear();
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PaymentSuccessPage(
+              totalAmount: orderTotal,
+              paymentMethod: orderPayment,
+              orderId: result['orderCode'] ?? 'N/A',
+              items: orderItems,
+              diningMode: orderMode,
+              tableNumber: orderTable,
+            ),
+          ),
+        );
+      } else {
+        // Error - Show detailed error message
+        print('❌ Order submission failed - result is null');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Failed to create order. Check console for details.',
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
   Widget _buildBottomBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -570,18 +664,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           width: double.infinity,
           height: 60,
           child: ElevatedButton(
-            onPressed: () {
-              // Navigate to Success Page
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PaymentSuccessPage(
-                    totalAmount: totalAmount,
-                    paymentMethod: selectedPaymentMethod,
-                  ),
-                ),
-              );
-            },
+            onPressed: _isSubmitting ? null : _handleSubmitOrder,
             style: ElevatedButton.styleFrom(
               backgroundColor: _textPrimary,
               shape: RoundedRectangleBorder(
@@ -592,17 +675,38 @@ class _CheckoutPageState extends State<CheckoutPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.lock_outline, size: 20, color: Colors.white),
-                const SizedBox(width: 8),
-                Text(
-                  'Pay ${formatRupiah(totalAmount)}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
+                if (_isSubmitting) ...[
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Processing...',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ] else ...[
+                  const Icon(Icons.lock_outline, size: 20, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Pay ${formatRupiah(totalAmount)}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
