@@ -3,10 +3,10 @@
 String formatRupiah(num price) {
   final priceInt = price.toInt();
   final priceString = priceInt.toString();
-  
+
   String result = '';
   int count = 0;
-  
+
   for (int i = priceString.length - 1; i >= 0; i--) {
     if (count == 3) {
       result = '.$result';
@@ -15,6 +15,6 @@ String formatRupiah(num price) {
     result = priceString[i] + result;
     count++;
   }
-  
+
   return 'Rp $result';
 }

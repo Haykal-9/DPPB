@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../home/data/models/api_product.dart';
+import '../../cart/data/datasources/cart_data.dart';
+import '../../cart/data/models/cart_item.dart';
+import '../pages/product_detail_page.dart';
 
 class ApiMenuProductCard extends StatelessWidget {
   final ApiProduct product;
@@ -20,7 +23,7 @@ class ApiMenuProductCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ApiProductDetailPage(product: product),
+            builder: (context) => ProductDetailPage(product: product),
           ),
         );
       },
@@ -144,6 +147,20 @@ class ApiMenuProductCard extends StatelessWidget {
                         ),
                         GestureDetector(
                           onTap: () {
+                            // Check if item already exists in cart
+                            final existingIndex = mockCartItems.indexWhere(
+                              (item) => item.product.id == product.id,
+                            );
+
+                            if (existingIndex != -1) {
+                              // Item exists, increase quantity
+                              mockCartItems[existingIndex].quantity++;
+                            } else {
+                              // Add new item to cart
+                              mockCartItems.add(CartItem(product, 1));
+                            }
+
+                            // Show success feedback
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
@@ -154,6 +171,7 @@ class ApiMenuProductCard extends StatelessWidget {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
+                                duration: const Duration(seconds: 1),
                               ),
                             );
                           },
@@ -236,242 +254,5 @@ class ApiMenuProductCard extends StatelessWidget {
               : '',
         )
         .join(' ');
-  }
-}
-
-/// Product Detail Page for API Product
-class ApiProductDetailPage extends StatelessWidget {
-  final ApiProduct product;
-
-  const ApiProductDetailPage({super.key, required this.product});
-
-  static const Color _bgPage = Color(0xFFF9F5F0);
-  static const Color _goldPrimary = Color(0xFFD4AF37);
-  static const Color _textPrimary = Color(0xFF2C2219);
-  static const Color _textSecondary = Color(0xFF8D7B68);
-
-  @override
-  Widget build(BuildContext context) {
-    String imageUrl = product.gambar ?? '';
-    imageUrl = imageUrl.replaceAll('127.0.0.1', '10.0.2.2');
-    imageUrl = imageUrl.replaceAll('localhost', '10.0.2.2');
-
-    return Scaffold(
-      backgroundColor: _bgPage,
-      body: CustomScrollView(
-        slivers: [
-          // App Bar with Image
-          SliverAppBar(
-            expandedHeight: 300,
-            pinned: true,
-            backgroundColor: _bgPage,
-            leading: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.9),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.arrow_back, color: _textPrimary),
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Hero(
-                tag: 'product_${product.id}',
-                child: imageUrl.isNotEmpty
-                    ? Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: _textSecondary.withValues(alpha: 0.2),
-                          child: const Icon(
-                            Icons.coffee,
-                            size: 80,
-                            color: _textSecondary,
-                          ),
-                        ),
-                      )
-                    : Container(
-                        color: _textSecondary.withValues(alpha: 0.2),
-                        child: const Icon(
-                          Icons.coffee,
-                          size: 80,
-                          color: _textSecondary,
-                        ),
-                      ),
-              ),
-            ),
-          ),
-
-          // Content
-          SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Name and Category
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              product.nama,
-                              style: const TextStyle(
-                                fontFamily: 'Serif',
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: _textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              product.kategoriNama ?? 'Menu',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: _textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Rating
-                      if (product.rating > 0)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _goldPrimary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.star_rounded,
-                                color: _goldPrimary,
-                                size: 18,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                product.rating.toStringAsFixed(1),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: _textPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Description
-                  const Text(
-                    'Deskripsi',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: _textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    product.deskripsi ?? 'Tidak ada deskripsi tersedia.',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: _textSecondary,
-                      height: 1.6,
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Price and Add to Cart
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Harga',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: _textSecondary,
-                            ),
-                          ),
-                          Text(
-                            'Rp ${product.harga.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: _goldPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '${product.nama} ditambahkan ke keranjang',
-                                ),
-                                backgroundColor: _goldPrimary,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _textPrimary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.shopping_bag_outlined),
-                              SizedBox(width: 8),
-                              Text(
-                                'Tambah ke Keranjang',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 50),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

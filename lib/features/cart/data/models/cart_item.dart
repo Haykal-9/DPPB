@@ -1,11 +1,11 @@
-import '../../../product/data/models/product.dart';
+import '../../../home/data/models/api_product.dart';
 
 /// Model untuk Item di Keranjang
 class CartItem {
-  final Product product;
+  final ApiProduct product;
   int quantity;
   final String options;
-  double get total => product.price * quantity;
+  double get total => product.harga * quantity;
 
   CartItem(
     this.product,

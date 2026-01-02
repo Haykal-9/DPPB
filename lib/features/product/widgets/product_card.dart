@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../core/models/data.dart';
+import '../../home/data/models/api_product.dart';
 import '../pages/product_detail_page.dart';
 import '../../../../core/utils/formatter.dart';
 
 class ProductCard extends StatelessWidget {
-  final Product product;
+  final ApiProduct product;
 
   const ProductCard({super.key, required this.product});
 
@@ -35,7 +35,7 @@ class ProductCard extends StatelessWidget {
                     top: Radius.circular(15),
                   ),
                   child: Image.network(
-                    product.imageUrl,
+                    product.gambar ?? '',
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,
@@ -54,7 +54,7 @@ class ProductCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 8.0),
               child: Text(
-                product.name,
+                product.nama,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
@@ -67,7 +67,7 @@ class ProductCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    formatRupiah(product.price),
+                    formatRupiah(product.harga),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -91,7 +91,7 @@ class ProductCard extends StatelessWidget {
                       onPressed: () {
                         final snackBar = SnackBar(
                           content: Text(
-                            '${product.name} ditambahkan ke keranjang.',
+                            '${product.nama} ditambahkan ke keranjang.',
                           ),
                           duration: const Duration(milliseconds: 1500),
                         );

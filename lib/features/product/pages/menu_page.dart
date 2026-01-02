@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/models/data.dart'; // Centralized data exports
-import '../widgets/menu_product_card.dart'; // Relative to pages/.. -> widgets/
 import '../../cart/pages/cart_page.dart';
 
 import '../../home/data/models/api_product.dart';

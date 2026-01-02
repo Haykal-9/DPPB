@@ -27,7 +27,7 @@ class CartService {
         return {
           'menu_id': item.product.id, // Use product ID
           'quantity': item.quantity,
-          'price': item.product.price,
+          'price': item.product.harga,
           'subtotal': item.total,
           'notes': item.options, // Options as notes
         };

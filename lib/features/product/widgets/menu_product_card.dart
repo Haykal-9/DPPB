@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../../core/models/data.dart';
+import '../../home/data/models/api_product.dart';
 import '../pages/product_detail_page.dart';
 import '../../../../core/utils/formatter.dart';
 import '../../cart/data/datasources/cart_data.dart';
 import '../../cart/data/models/cart_item.dart';
 
 class MenuProductCard extends StatelessWidget {
-  final Product product;
+  final ApiProduct product;
 
   const MenuProductCard({super.key, required this.product});
 
@@ -18,8 +18,8 @@ class MenuProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Generate safe values for missing model fields
-    final String heroTag = 'product_${product.name.replaceAll(' ', '_')}';
-    const String rating = "4.8"; // Mock rating
+    final String heroTag = 'product_${product.nama.replaceAll(' ', '_')}';
+    final String rating = product.rating.toStringAsFixed(1);
 
     return InkWell(
       onTap: () {
@@ -58,7 +58,7 @@ class MenuProductCard extends StatelessWidget {
                     child: Hero(
                       tag: heroTag,
                       child: Image.network(
-                        product.imageUrl,
+                        product.gambar ?? '',
                         fit: BoxFit.cover,
                         width: double.infinity,
                         height: double.infinity,
@@ -125,7 +125,7 @@ class MenuProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          product.name,
+                          product.nama,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -137,7 +137,7 @@ class MenuProductCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          product.category ?? 'Coffee',
+                          product.kategoriNama ?? 'Coffee',
                           style: TextStyle(
                             fontSize: 11,
                             color: _textSecondary,
@@ -152,7 +152,7 @@ class MenuProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          formatRupiah(product.price),
+                          formatRupiah(product.harga),
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
@@ -168,7 +168,7 @@ class MenuProductCard extends StatelessWidget {
                             // Check if item already exists in cart
                             final existingIndex = mockCartItems.indexWhere(
                               (item) =>
-                                  item.product.name == product.name &&
+                                  item.product.nama == product.nama &&
                                   item.options == defaultOptions,
                             );
 
@@ -185,7 +185,7 @@ class MenuProductCard extends StatelessWidget {
                             // Show success feedback
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('${product.name} added to cart!'),
+                                content: Text('${product.nama} added to cart!'),
                                 backgroundColor: Colors.green,
                                 duration: const Duration(seconds: 1),
                               ),

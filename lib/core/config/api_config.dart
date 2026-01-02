@@ -4,7 +4,6 @@ class ApiConfig {
   // Ganti dengan IP laptop kamu jika pakai HP fisik
   // kalau pake emulator ganti dengan 10.0.2.2
   // punya salman : http://192.168.1.14:8000/api/
-  
 
   // IP for Web / Physical Device (User provided)
   static const String _localIp = "http://192.168.1.15:8000/";
@@ -25,5 +24,4 @@ class ApiConfig {
     // because they are static files served by the web server
     return _localIp;
   }
-
 }

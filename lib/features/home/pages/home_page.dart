@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../core/config/api_config.dart';
 import '../../../core/services/user_session.dart';
 import '../../cart/pages/cart_page.dart';
+import '../../cart/data/datasources/cart_data.dart';
+import '../../cart/data/models/cart_item.dart';
 import '../../order/pages/order_history_page.dart';
 import '../../reservation/pages/reservation_page.dart';
 import '../data/models/api_product.dart';
@@ -634,13 +636,38 @@ class _HomePageState extends State<HomePage> {
                         // Navigate to product detail
                       },
                       onAddToCart: () {
+                        final product = _featuredProducts[index];
+                        const defaultOptions =
+                            'Medium, Whole Milk, Regular Sugar';
+
+                        // Check if item already exists in cart
+                        final existingIndex = mockCartItems.indexWhere(
+                          (item) =>
+                              item.product.id == product.id &&
+                              item.options == defaultOptions,
+                        );
+
+                        if (existingIndex != -1) {
+                          // Item exists, increase quantity
+                          setState(() {
+                            mockCartItems[existingIndex].quantity++;
+                          });
+                        } else {
+                          // Add new item to cart
+                          setState(() {
+                            mockCartItems.add(
+                              CartItem(product, 1, options: defaultOptions),
+                            );
+                          });
+                        }
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              '${_featuredProducts[index].nama} ditambahkan ke keranjang',
+                              '${product.nama} ditambahkan ke keranjang',
                             ),
                             backgroundColor: _goldPrimary,
-                            duration: const Duration(seconds: 2),
+                            duration: const Duration(seconds: 1),
                           ),
                         );
                       },
@@ -856,13 +883,38 @@ class _HomePageState extends State<HomePage> {
                         // Navigate to product detail
                       },
                       onAddToCart: () {
+                        final product = _latestProducts[index];
+                        const defaultOptions =
+                            'Medium, Whole Milk, Regular Sugar';
+
+                        // Check if item already exists in cart
+                        final existingIndex = mockCartItems.indexWhere(
+                          (item) =>
+                              item.product.id == product.id &&
+                              item.options == defaultOptions,
+                        );
+
+                        if (existingIndex != -1) {
+                          // Item exists, increase quantity
+                          setState(() {
+                            mockCartItems[existingIndex].quantity++;
+                          });
+                        } else {
+                          // Add new item to cart
+                          setState(() {
+                            mockCartItems.add(
+                              CartItem(product, 1, options: defaultOptions),
+                            );
+                          });
+                        }
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              '${_latestProducts[index].nama} ditambahkan ke keranjang',
+                              '${product.nama} ditambahkan ke keranjang',
                             ),
                             backgroundColor: _goldPrimary,
-                            duration: const Duration(seconds: 2),
+                            duration: const Duration(seconds: 1),
                           ),
                         );
                       },
