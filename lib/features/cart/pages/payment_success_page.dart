@@ -268,40 +268,6 @@ class PaymentSuccessPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
 
-                // View Order History Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      // Navigate to Order History
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const OrderHistoryPage(),
-                        ),
-                        (route) => false,
-                      );
-                    },
-                    icon: const Icon(Icons.receipt_long_outlined),
-                    label: const Text(
-                      'View Order History',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: textPrimary,
-                      side: BorderSide(color: textPrimary, width: 2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
                 // Back to Menu Button
                 SizedBox(
                   width: double.infinity,
