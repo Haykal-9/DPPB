@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../home/data/models/api_product.dart';
-import 'comments_page.dart';
 import '../../../../core/utils/formatter.dart';
 import '../../cart/data/datasources/cart_data.dart';
 import '../../cart/data/models/cart_item.dart';
@@ -16,262 +15,287 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
-  String _selectedSize = 'Medium';
-  String _selectedMilk = 'Whole Milk';
-  String _selectedSugar = 'Regular Sugar';
+  // Theme Colors
+  final Color _bgPage = const Color(0xFFF9F5F0);
+  final Color _textPrimary = const Color(0xFF2C2219);
+  final Color _textSecondary = const Color(0xFF8D7B68);
+  final Color _goldAccent = const Color(0xFFD4AF37);
 
   @override
   Widget build(BuildContext context) {
     final product = widget.product;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(product.nama.split(' ')[0]),
-        actions: [
-          IconButton(icon: const Icon(Icons.share_outlined), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.favorite_border), onPressed: () {}),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 250,
-              width: double.infinity,
-              color: Colors.grey.shade200,
-              child: Image.network(
-                product.gambar ?? '',
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-                errorBuilder: (context, error, stackTrace) {
-                  debugPrint('Error loading image: ${product.gambar}');
-                  debugPrint('Error: $error');
-                  return Container(
-                    color: Colors.grey.shade200,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            color: Colors.red,
-                            size: 50,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Error loading image',
-                            style: TextStyle(color: Colors.grey.shade600),
-                          ),
+      backgroundColor: _bgPage,
+      body: CustomScrollView(
+        slivers: [
+          // App Bar with Image
+          SliverAppBar(
+            expandedHeight: 300,
+            pinned: true,
+            backgroundColor: _textPrimary,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(
+                    product.gambar ?? '',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey.shade300,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.coffee,
+                              size: 64,
+                              color: _textSecondary.withOpacity(0.5),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Image not available',
+                              style: TextStyle(color: _textSecondary),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  // Gradient overlay
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.7),
                         ],
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.nama,
-                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    formatRupiah(product.harga),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleLarge!.copyWith(color: Colors.brown),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(product.deskripsi ?? 'Deskripsi tidak tersedia'),
-                  const SizedBox(height: 20),
-                  _buildCommentSection(context),
-                  const SizedBox(height: 20),
-                  _buildOptionSelection(
-                    'Size',
-                    ['Small', 'Medium', 'Large'],
-                    _selectedSize,
-                    (value) {
-                      setState(() {
-                        _selectedSize = value;
-                      });
-                    },
-                  ),
-                  _buildOptionSelection(
-                    'Milk Type',
-                    ['Whole Milk', 'Almond Milk', 'Oat Milk', 'Soy Milk'],
-                    _selectedMilk,
-                    (value) {
-                      setState(() {
-                        _selectedMilk = value;
-                      });
-                    },
-                  ),
-                  _buildOptionSelection(
-                    'Sugar Level',
-                    ['No Sugar', 'Light Sugar', 'Regular Sugar', 'Extra Sugar'],
-                    _selectedSugar,
-                    (value) {
-                      setState(() {
-                        _selectedSugar = value;
-                      });
-                    },
                   ),
                 ],
               ),
             ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.share_outlined, color: Colors.white),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const Icon(Icons.favorite_border, color: Colors.white),
+                onPressed: () {},
+              ),
+            ],
+          ),
+
+          // Content
+          SliverToBoxAdapter(
+            child: Container(
+              decoration: BoxDecoration(
+                color: _bgPage,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(30),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Product Name & Price
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                product.nama,
+                                style: TextStyle(
+                                  fontFamily: 'Serif',
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: _textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              if (product.kategoriNama != null)
+                                Text(
+                                  product.kategoriNama!,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: _textSecondary,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _goldAccent.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: _goldAccent, width: 2),
+                          ),
+                          child: Text(
+                            formatRupiah(product.harga),
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: _goldAccent,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Rating
+                    if (product.rating > 0)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: _textPrimary.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ...List.generate(
+                              5,
+                              (index) => Icon(
+                                index < product.rating
+                                    ? Icons.star
+                                    : Icons.star_border,
+                                color: _goldAccent,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              product.rating.toStringAsFixed(1),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: _textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    const SizedBox(height: 20),
+
+                    // Description
+                    Text(
+                      'Description',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: _textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      product.deskripsi ?? 'Deskripsi tidak tersedia',
+                      style: TextStyle(
+                        fontSize: 15,
+                        height: 1.5,
+                        color: _textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 100), // Space for bottom button
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, -5),
+            ),
           ],
         ),
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ElevatedButton(
-          onPressed: () {
-            // Create options string
-            final options = '$_selectedSize, $_selectedMilk, $_selectedSugar';
+        child: SafeArea(
+          child: ElevatedButton(
+            onPressed: () {
+              final existingIndex = mockCartItems.indexWhere(
+                (item) => item.product.id == product.id,
+              );
 
-            // Check if item already exists in cart
-            final existingIndex = mockCartItems.indexWhere(
-              (item) =>
-                  item.product.nama == product.nama && item.options == options,
-            );
+              if (existingIndex != -1) {
+                mockCartItems[existingIndex].quantity++;
+              } else {
+                mockCartItems.add(CartItem(product, 1));
+              }
 
-            if (existingIndex != -1) {
-              // Item exists, increase quantity
-              mockCartItems[existingIndex].quantity++;
-            } else {
-              // Add new item to cart
-              mockCartItems.add(CartItem(product, 1, options: options));
-            }
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('${product.nama} added to cart!'),
-                backgroundColor: Colors.green,
-                duration: const Duration(seconds: 2),
-                action: SnackBarAction(
-                  label: 'VIEW CART',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const CartPage()),
-                    );
-                  },
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${product.nama} added to cart!'),
+                  backgroundColor: _goldAccent,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  action: SnackBarAction(
+                    label: 'VIEW CART',
+                    textColor: Colors.white,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CartPage(),
+                        ),
+                      );
+                    },
+                  ),
                 ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _textPrimary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.brown,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: const Text('Add to Cart', style: TextStyle(fontSize: 18)),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCommentSection(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(8),
+              elevation: 0,
             ),
             child: Row(
-              children: List.generate(
-                5,
-                (index) => Icon(
-                  index < widget.product.rating
-                      ? Icons.star
-                      : Icons.star_border,
-                  color: Colors.amber,
-                  size: 20,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.shopping_bag_outlined, size: 22),
+                const SizedBox(width: 8),
+                const Text(
+                  'Add to Cart',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              ),
+              ],
             ),
           ),
         ),
-        const SizedBox(width: 10),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    CommentsPage(productName: widget.product.nama),
-              ),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.brown,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: const Text('See Comment..'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOptionSelection(
-    String title,
-    List<String> options,
-    String selectedOption,
-    ValueChanged<String> onSelected,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
-          child: Text(
-            title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
-        Wrap(
-          spacing: 10.0,
-          runSpacing: 8.0,
-          children: options.map((option) {
-            final isSelected = option == selectedOption;
-            return ChoiceChip(
-              label: Text(option),
-              selected: isSelected,
-              onSelected: (selected) {
-                if (selected) {
-                  onSelected(option);
-                }
-              },
-              selectedColor: Colors.brown,
-              backgroundColor: Colors.white,
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.black,
-              ),
-              side: BorderSide(
-                color: isSelected ? Colors.brown : Colors.grey.shade400,
-              ),
-            );
-          }).toList(),
-        ),
-      ],
+      ),
     );
   }
 }

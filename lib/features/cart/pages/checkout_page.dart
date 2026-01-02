@@ -504,9 +504,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ],
           ),
           const SizedBox(height: 16),
-          // Check items (Mock)
-          _buildSummaryItem('Latte', 1, 25000),
-          _buildSummaryItem('Cappucino', 2, 44000),
+          // Display actual cart items
+          ...mockCartItems.map(
+            (item) => _buildSummaryItem(
+              item.product.nama,
+              item.quantity,
+              item.product.harga,
+            ),
+          ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 8.0),
             child: Divider(),
@@ -535,6 +540,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildSummaryItem(String name, int qty, double price) {
+    final subtotal = price * qty;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
@@ -545,7 +551,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             style: TextStyle(color: _textSecondary, fontSize: 14),
           ),
           Text(
-            formatRupiah(price),
+            formatRupiah(subtotal),
             style: TextStyle(
               color: _textPrimary,
               fontWeight: FontWeight.w500,
