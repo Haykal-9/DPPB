@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/models/data.dart';
 import '../data/datasources/cart_data.dart';
+import '../data/models/cart_item.dart';
 import './checkout_page.dart';
 import '../../../../core/utils/formatter.dart';
 
@@ -211,7 +211,7 @@ class _CartPageState extends State<CartPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Dismissible(
-        key: Key('${item.product.name}_${item.options}'),
+        key: Key('${item.product.nama}_${item.options}'),
         direction: DismissDirection.endToStart,
         background: Container(
           alignment: Alignment.centerRight,
@@ -232,7 +232,7 @@ class _CartPageState extends State<CartPage> {
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${item.product.name} removed from cart'),
+              content: Text('${item.product.nama} removed from cart'),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 2),
             ),
@@ -257,7 +257,7 @@ class _CartPageState extends State<CartPage> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Image.network(
-                  item.product.imageUrl,
+                  item.product.gambar ?? '',
                   width: 80,
                   height: 80,
                   fit: BoxFit.cover,
@@ -277,7 +277,7 @@ class _CartPageState extends State<CartPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item.product.name,
+                      item.product.nama,
                       style: TextStyle(
                         fontFamily: 'Serif',
                         fontSize: 16,
@@ -295,7 +295,7 @@ class _CartPageState extends State<CartPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          formatRupiah(item.product.price),
+                          formatRupiah(item.product.harga),
                           style: TextStyle(
                             color: _goldPrimary,
                             fontWeight: FontWeight.bold,

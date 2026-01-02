@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../core/utils/formatter.dart';
-import '../../../../core/models/data.dart';
 import 'payment_success_page.dart';
 import '../data/services/cart_service.dart';
 import '../data/datasources/cart_data.dart';
+import '../data/models/cart_item.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});

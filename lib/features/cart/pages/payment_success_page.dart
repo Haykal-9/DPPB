@@ -178,7 +178,7 @@ class PaymentSuccessPage extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          item.product.name,
+                                          item.product.nama,
                                           style: TextStyle(
                                             color: textPrimary,
                                             fontWeight: FontWeight.w600,

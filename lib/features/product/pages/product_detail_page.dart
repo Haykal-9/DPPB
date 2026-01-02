@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/models/data.dart';
+import '../../home/data/models/api_product.dart';
 import 'comments_page.dart';
 import '../../../../core/utils/formatter.dart';
 import '../../cart/data/datasources/cart_data.dart';
@@ -7,7 +7,7 @@ import '../../cart/data/models/cart_item.dart';
 import '../../cart/pages/cart_page.dart';
 
 class ProductDetailPage extends StatefulWidget {
-  final Product product;
+  final ApiProduct product;
 
   const ProductDetailPage({super.key, required this.product});
 
@@ -25,7 +25,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     final product = widget.product;
     return Scaffold(
       appBar: AppBar(
-        title: Text(product.name.split(' ')[0]),
+        title: Text(product.nama.split(' ')[0]),
         actions: [
           IconButton(icon: const Icon(Icons.share_outlined), onPressed: () {}),
           IconButton(icon: const Icon(Icons.favorite_border), onPressed: () {}),
@@ -40,12 +40,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               width: double.infinity,
               color: Colors.grey.shade200,
               child: Image.network(
-                product.imageUrl,
+                product.gambar ?? '',
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: double.infinity,
                 errorBuilder: (context, error, stackTrace) {
-                  debugPrint('Error loading image: ${product.imageUrl}');
+                  debugPrint('Error loading image: ${product.gambar}');
                   debugPrint('Error: $error');
                   return Container(
                     color: Colors.grey.shade200,
@@ -76,20 +76,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    product.name,
+                    product.nama,
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    formatRupiah(product.price),
+                    formatRupiah(product.harga),
                     style: Theme.of(
                       context,
                     ).textTheme.titleLarge!.copyWith(color: Colors.brown),
                   ),
                   const SizedBox(height: 16),
-                  Text(product.description),
+                  Text(product.deskripsi ?? 'Deskripsi tidak tersedia'),
                   const SizedBox(height: 20),
                   _buildCommentSection(context),
                   const SizedBox(height: 20),
@@ -139,7 +139,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             // Check if item already exists in cart
             final existingIndex = mockCartItems.indexWhere(
               (item) =>
-                  item.product.name == product.name && item.options == options,
+                  item.product.nama == product.nama && item.options == options,
             );
 
             if (existingIndex != -1) {
@@ -152,7 +152,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('${product.name} added to cart!'),
+                content: Text('${product.nama} added to cart!'),
                 backgroundColor: Colors.green,
                 duration: const Duration(seconds: 2),
                 action: SnackBarAction(
@@ -197,7 +197,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               children: List.generate(
                 5,
                 (index) => Icon(
-                  index < 4.5 ? Icons.star : Icons.star_border,
+                  index < widget.product.rating
+                      ? Icons.star
+                      : Icons.star_border,
                   color: Colors.amber,
                   size: 20,
                 ),
@@ -212,7 +214,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    CommentsPage(productName: widget.product.name),
+                    CommentsPage(productName: widget.product.nama),
               ),
             );
           },
