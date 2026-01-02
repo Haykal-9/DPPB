@@ -227,67 +227,18 @@ class _RegisterPageState extends State<RegisterPage> {
                                       ? 'Nama wajib diisi'
                                       : null,
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 14),
 
-                                // Username & Password Row
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _buildLightField(
-                                        controller: _usernameController,
-                                        label: 'Username',
-                                        icon: Icons.person_outline,
-                                        validator: (val) =>
-                                            (val?.isEmpty ?? true)
-                                            ? 'Wajib diisi'
-                                            : null,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: _buildLightField(
-                                        controller: _passwordController,
-                                        label: 'Password',
-                                        icon: Icons.lock_outline,
-                                        isPassword: true,
-                                        isObscure: _obscurePassword,
-                                        onToggle: () => setState(
-                                          () => _obscurePassword =
-                                              !_obscurePassword,
-                                        ),
-                                        validator: (val) {
-                                          if (val?.isEmpty ?? true)
-                                            return 'Wajib diisi';
-                                          if (val!.length < 6)
-                                            return 'Min 6 kar';
-                                          return null;
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-
-                                // Konfirmasi Password
+                                // Username
                                 _buildLightField(
-                                  controller: _confirmPasswordController,
-                                  label: 'Konfirmasi Password',
-                                  icon: Icons.lock_outline,
-                                  isPassword: true,
-                                  isObscure: _obscureConfirmPassword,
-                                  onToggle: () => setState(
-                                    () => _obscureConfirmPassword =
-                                        !_obscureConfirmPassword,
-                                  ),
-                                  validator: (val) {
-                                    if (val?.isEmpty ?? true)
-                                      return 'Wajib diisi';
-                                    if (val != _passwordController.text)
-                                      return 'Password tidak sama';
-                                    return null;
-                                  },
+                                  controller: _usernameController,
+                                  label: 'Username',
+                                  icon: Icons.person_outline,
+                                  validator: (val) => (val?.isEmpty ?? true)
+                                      ? 'Username wajib diisi'
+                                      : null,
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 14),
 
                                 // Email
                                 _buildLightField(
@@ -303,59 +254,92 @@ class _RegisterPageState extends State<RegisterPage> {
                                     return null;
                                   },
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 14),
 
-                                // No Telepon & Jenis Kelamin
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _buildLightField(
-                                        controller: _phoneController,
-                                        label: 'No. Telepon',
-                                        icon: Icons.phone_outlined,
-                                        keyboardType: TextInputType.phone,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Jenis Kelamin',
-                                            style: TextStyle(
-                                              color: _textSecondary,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Row(
-                                            children: _genders.isEmpty
-                                                ? [
-                                                    _buildGenderChip('L', 1),
-                                                    const SizedBox(width: 6),
-                                                    _buildGenderChip('P', 2),
-                                                  ]
-                                                : _genders.map((g) {
-                                                    return Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                            right: 6,
-                                                          ),
-                                                      child: _buildGenderChip(
-                                                        g.name.substring(0, 1),
-                                                        g.id,
-                                                      ),
-                                                    );
-                                                  }).toList(),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                                // Password
+                                _buildLightField(
+                                  controller: _passwordController,
+                                  label: 'Password',
+                                  icon: Icons.lock_outline,
+                                  isPassword: true,
+                                  isObscure: _obscurePassword,
+                                  onToggle: () => setState(
+                                    () => _obscurePassword = !_obscurePassword,
+                                  ),
+                                  validator: (val) {
+                                    if (val?.isEmpty ?? true)
+                                      return 'Password wajib diisi';
+                                    if (val!.length < 6)
+                                      return 'Minimal 6 karakter';
+                                    return null;
+                                  },
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 14),
+
+                                // Konfirmasi Password
+                                _buildLightField(
+                                  controller: _confirmPasswordController,
+                                  label: 'Konfirmasi Password',
+                                  icon: Icons.lock_outline,
+                                  isPassword: true,
+                                  isObscure: _obscureConfirmPassword,
+                                  onToggle: () => setState(
+                                    () => _obscureConfirmPassword =
+                                        !_obscureConfirmPassword,
+                                  ),
+                                  validator: (val) {
+                                    if (val?.isEmpty ?? true)
+                                      return 'Konfirmasi password wajib diisi';
+                                    if (val != _passwordController.text)
+                                      return 'Password tidak sama';
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 14),
+
+                                // No Telepon
+                                _buildLightField(
+                                  controller: _phoneController,
+                                  label: 'No. Telepon',
+                                  icon: Icons.phone_outlined,
+                                  keyboardType: TextInputType.phone,
+                                ),
+                                const SizedBox(height: 14),
+
+                                // Jenis Kelamin
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 14,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF5F5F5),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.wc_outlined,
+                                        color: _textSecondary,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          'Jenis Kelamin',
+                                          style: TextStyle(
+                                            color: _textSecondary,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                      _buildGenderChip('L', 1),
+                                      const SizedBox(width: 8),
+                                      _buildGenderChip('P', 2),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
 
                                 // Alamat
                                 _buildLightField(
@@ -364,7 +348,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   icon: Icons.location_on_outlined,
                                   maxLines: 2,
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 14),
 
                                 // Foto Profil
                                 Text(
@@ -514,17 +498,33 @@ class _RegisterPageState extends State<RegisterPage> {
     bool isSelected = _selectedGenderId == value;
     return GestureDetector(
       onTap: () => setState(() => _selectedGenderId = value),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? _goldPrimary : const Color(0xFFF5F5F5),
+          color: isSelected ? _goldPrimary : Colors.white,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected
+                ? _goldPrimary
+                : _textSecondary.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: _goldPrimary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: Text(
           label,
           style: TextStyle(
             color: isSelected ? Colors.white : _textSecondary,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
         ),
