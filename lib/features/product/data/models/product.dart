@@ -1,5 +1,6 @@
 /// Kelas Model untuk Produk (PBO: Encapsulation)
 class Product {
+  final int id;
   final String name;
   final double price;
   final String imageUrl;
@@ -7,6 +8,7 @@ class Product {
   final String? category; // Nullable to handle legacy data
 
   const Product(
+    this.id,
     this.name,
     this.price,
     this.imageUrl, {

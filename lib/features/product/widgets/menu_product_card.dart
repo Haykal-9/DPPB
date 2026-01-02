@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/models/data.dart';
 import '../pages/product_detail_page.dart';
 import '../../../../core/utils/formatter.dart';
+import '../../cart/data/datasources/cart_data.dart';
+import '../../cart/data/models/cart_item.dart';
 
 class MenuProductCard extends StatelessWidget {
   final Product product;
@@ -157,16 +159,49 @@ class MenuProductCard extends StatelessWidget {
                             color: _goldPrimary,
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: _textPrimary,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 16,
+                        GestureDetector(
+                          onTap: () {
+                            // Add to cart with default options
+                            const defaultOptions =
+                                'Medium, Whole Milk, Regular Sugar';
+
+                            // Check if item already exists in cart
+                            final existingIndex = mockCartItems.indexWhere(
+                              (item) =>
+                                  item.product.name == product.name &&
+                                  item.options == defaultOptions,
+                            );
+
+                            if (existingIndex != -1) {
+                              // Item exists, increase quantity
+                              mockCartItems[existingIndex].quantity++;
+                            } else {
+                              // Add new item to cart
+                              mockCartItems.add(
+                                CartItem(product, 1, options: defaultOptions),
+                              );
+                            }
+
+                            // Show success feedback
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('${product.name} added to cart!'),
+                                backgroundColor: Colors.green,
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: _textPrimary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 16,
+                            ),
                           ),
                         ),
                       ],

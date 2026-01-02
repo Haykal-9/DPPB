@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../../../../core/models/data.dart'; // Centralized data exports
+import '../widgets/menu_product_card.dart'; // Relative to pages/.. -> widgets/
+import '../../cart/pages/cart_page.dart';
+
 import '../../home/data/models/api_product.dart';
 import '../../home/data/services/home_service.dart';
 import '../widgets/api_menu_product_card.dart';
@@ -126,18 +131,46 @@ class _MenuPageState extends State<MenuPage> {
           child: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // 1. Title Header
+              // 1. Title Header with Cart Icon
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
-                  child: Text(
-                    'Menu',
-                    style: TextStyle(
-                      fontFamily: 'Serif',
-                      fontWeight: FontWeight.bold,
-                      color: _textPrimary,
-                      fontSize: 32,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Menu',
+                        style: TextStyle(
+                          fontFamily: 'Serif',
+                          fontWeight: FontWeight.bold,
+                          color: _textPrimary,
+                          fontSize: 32,
+                        ),
+                      ),
+                      // Cart Icon
+                      IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CartPage(),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.shopping_bag_outlined,
+                          color: _textPrimary,
+                          size: 28,
+                        ),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          padding: const EdgeInsets.all(12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

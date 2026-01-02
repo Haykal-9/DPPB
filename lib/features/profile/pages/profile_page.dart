@@ -3,6 +3,7 @@ import '../../../core/services/user_session.dart';
 import '../../../core/config/api_config.dart';
 import '../../auth/data/services/auth_service.dart';
 import '../../reservation/pages/reservation_history_page.dart';
+import '../../order/pages/order_history_page.dart';
 import 'edit_profile_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -289,8 +290,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     title: 'My Orders',
                     subtitle: 'Track active and past orders',
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Feature coming soon')),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const OrderHistoryPage(),
+                        ),
                       );
                     },
                   ),

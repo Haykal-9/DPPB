@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/models/data.dart';
 import 'comments_page.dart';
 import '../../../../core/utils/formatter.dart';
+import '../../cart/data/datasources/cart_data.dart';
+import '../../cart/data/models/cart_item.dart';
+import '../../cart/pages/cart_page.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final Product product;
@@ -130,10 +133,37 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton(
           onPressed: () {
+            // Create options string
+            final options = '$_selectedSize, $_selectedMilk, $_selectedSugar';
+
+            // Check if item already exists in cart
+            final existingIndex = mockCartItems.indexWhere(
+              (item) =>
+                  item.product.name == product.name && item.options == options,
+            );
+
+            if (existingIndex != -1) {
+              // Item exists, increase quantity
+              mockCartItems[existingIndex].quantity++;
+            } else {
+              // Add new item to cart
+              mockCartItems.add(CartItem(product, 1, options: options));
+            }
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                  'Ditambahkan: ${product.name} (Size: $_selectedSize, Milk: $_selectedMilk, Sugar: $_selectedSugar)',
+                content: Text('${product.name} added to cart!'),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 2),
+                action: SnackBarAction(
+                  label: 'VIEW CART',
+                  textColor: Colors.white,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CartPage()),
+                    );
+                  },
                 ),
               ),
             );

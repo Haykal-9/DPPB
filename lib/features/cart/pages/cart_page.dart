@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/models/data.dart';
-// import '../data/models/cart_item.dart';
+import '../data/datasources/cart_data.dart';
 import './checkout_page.dart';
 import '../../../../core/utils/formatter.dart';
 
@@ -19,90 +19,191 @@ class _CartPageState extends State<CartPage> {
   final Color _goldPrimary = const Color(0xFFD4AF37);
 
   // Constants
-  final double subtotal = 91000.00;
-  final double deliveryFee = 15000.00;
-  final double discount = -10000.00;
+  double get subtotal {
+    return mockCartItems.fold(0, (sum, item) => sum + item.total);
+  }
+
+  final double deliveryFee = 0.00; // No delivery fee for pickup
+  final double discount = 0.00;
   double get total => subtotal + deliveryFee + discount;
 
   @override
+  void initState() {
+    super.initState();
+    // Force rebuild when returning to this page
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Check if cart is empty
+    final bool isCartEmpty = mockCartItems.isEmpty;
+
     return Scaffold(
       backgroundColor: _bgPage,
       body: SafeArea(
         bottom: false,
-        child: Column(
-          children: [
-            Expanded(
-              child: CustomScrollView(
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  // 1. Large Header
-                  SliverAppBar(
-                    backgroundColor: _bgPage,
-                    expandedHeight: 120,
-                    pinned: true,
-                    elevation: 0,
-                    leading: const BackButton(color: Color(0xFF2C2219)),
-                    flexibleSpace: FlexibleSpaceBar(
-                      titlePadding: const EdgeInsets.only(
-                        left: 60, // Increased to avoid BackButton overlap
-                        bottom: 16,
-                      ),
-                      title: Text(
-                        'My Order',
-                        style: TextStyle(
-                          fontFamily: 'Serif',
-                          fontWeight: FontWeight.bold,
-                          color: _textPrimary,
-                          fontSize: 24,
+        child: isCartEmpty
+            ? _buildEmptyCart()
+            : Column(
+                children: [
+                  Expanded(
+                    child: CustomScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      slivers: [
+                        // 1. Large Header
+                        SliverAppBar(
+                          backgroundColor: _bgPage,
+                          expandedHeight: 120,
+                          pinned: true,
+                          elevation: 0,
+                          leading: const BackButton(color: Color(0xFF2C2219)),
+                          flexibleSpace: FlexibleSpaceBar(
+                            titlePadding: const EdgeInsets.only(
+                              left: 60, // Increased to avoid BackButton overlap
+                              bottom: 16,
+                            ),
+                            title: Text(
+                              'My Order',
+                              style: TextStyle(
+                                fontFamily: 'Serif',
+                                fontWeight: FontWeight.bold,
+                                color: _textPrimary,
+                                fontSize: 24,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+
+                        // 2. Cart Items List with Swipe-to-Remove
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate((
+                              context,
+                              index,
+                            ) {
+                              final item =
+                                  mockCartItems[index]; // Use mock data
+                              return _buildDismissibleItem(item);
+                            }, childCount: mockCartItems.length),
+                          ),
+                        ),
+
+                        // 3. Promo Code Section
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                            child: _buildPromoSection(),
+                          ),
+                        ),
+
+                        // 3.5 Order Note
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                            child: _buildNoteSection(),
+                          ),
+                        ),
+
+                        // 4. Receipt Summary
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+                            child: _buildReceiptSection(),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
-                  // 2. Cart Items List with Swipe-to-Remove
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final item = mockCartItems[index]; // Use mock data
-                        return _buildDismissibleItem(item);
-                      }, childCount: mockCartItems.length),
-                    ),
-                  ),
-
-                  // 3. Promo Code Section
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-                      child: _buildPromoSection(),
-                    ),
-                  ),
-
-                  // 3.5 Order Note
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-                      child: _buildNoteSection(),
-                    ),
-                  ),
-
-                  // 4. Receipt Summary
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
-                      child: _buildReceiptSection(),
-                    ),
-                  ),
+                  // 5. Bottom Checkout Area
+                  _buildBottomBar(),
                 ],
               ),
-            ),
-
-            // 5. Bottom Checkout Area
-            _buildBottomBar(),
-          ],
-        ),
       ),
+    );
+  }
+
+  Widget _buildEmptyCart() {
+    return Column(
+      children: [
+        // Header
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              const BackButton(color: Color(0xFF2C2219)),
+              Expanded(
+                child: Text(
+                  'My Order',
+                  style: TextStyle(
+                    fontFamily: 'Serif',
+                    fontWeight: FontWeight.bold,
+                    color: _textPrimary,
+                    fontSize: 24,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(width: 48),
+            ],
+          ),
+        ),
+        // Empty state content
+        Expanded(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.shopping_cart_outlined,
+                  size: 100,
+                  color: _textSecondary.withOpacity(0.3),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Your Cart is Empty',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: _textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Add items to get started',
+                  style: TextStyle(fontSize: 16, color: _textSecondary),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _goldPrimary,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    'Browse Menu',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -110,7 +211,7 @@ class _CartPageState extends State<CartPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Dismissible(
-        key: Key(item.product.name),
+        key: Key('${item.product.name}_${item.options}'),
         direction: DismissDirection.endToStart,
         background: Container(
           alignment: Alignment.centerRight,
@@ -126,9 +227,15 @@ class _CartPageState extends State<CartPage> {
           ),
         ),
         onDismissed: (direction) {
-          // Logic to remove item would go here
+          setState(() {
+            mockCartItems.remove(item);
+          });
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${item.product.name} removed from cart')),
+            SnackBar(
+              content: Text('${item.product.name} removed from cart'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 2),
+            ),
           );
         },
         child: Container(
@@ -207,7 +314,16 @@ class _CartPageState extends State<CartPage> {
                           ),
                           child: Row(
                             children: [
-                              _buildQtyIcon(Icons.remove, () {}),
+                              _buildQtyIcon(Icons.remove, () {
+                                setState(() {
+                                  if (item.quantity > 1) {
+                                    item.quantity--;
+                                  } else {
+                                    // Remove item if quantity becomes 0
+                                    mockCartItems.remove(item);
+                                  }
+                                });
+                              }),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -221,7 +337,11 @@ class _CartPageState extends State<CartPage> {
                                   ),
                                 ),
                               ),
-                              _buildQtyIcon(Icons.add, () {}),
+                              _buildQtyIcon(Icons.add, () {
+                                setState(() {
+                                  item.quantity++;
+                                });
+                              }),
                             ],
                           ),
                         ),

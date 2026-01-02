@@ -9,6 +9,11 @@ class ReservationService {
   Future<List<Reservation>> getReservations() async {
     final url = Uri.parse('${ApiConfig.baseUrl}reservations');
     final token = UserSession.instance.token;
+    final user = UserSession.instance.currentUser;
+
+    print('👤 Current user (Reservation): ${user?.username} (ID: ${user?.id})');
+    print('🔑 Token (Reservation): ${token?.substring(0, 20)}...');
+    print('📤 Fetching reservations from: $url');
 
     try {
       final response = await http.get(
@@ -19,16 +24,29 @@ class ReservationService {
         },
       );
 
+      print('📥 Reservations response status: ${response.statusCode}');
+      print('📥 Reservations response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final Map<String, dynamic> body = jsonDecode(response.body);
-        final List<dynamic> data = body['data'];
+        print('📊 Response keys: ${body.keys.toList()}');
+
+        final List<dynamic> data = body['data'] ?? [];
+        print('✅ Found ${data.length} reservations');
+
+        if (data.isNotEmpty) {
+          print('📦 First reservation sample: ${data[0]}');
+        } else {
+          print('⚠️ No reservations returned from API');
+        }
+
         return data.map((json) => Reservation.fromJson(json)).toList();
       } else {
-        debugPrint('Failed to load reservations: ${response.statusCode}');
+        debugPrint('❌ Failed to load reservations: ${response.statusCode}');
         return [];
       }
     } catch (e) {
-      debugPrint('Error getting reservations: $e');
+      debugPrint('❌ Error getting reservations: $e');
       return [];
     }
   }
